@@ -9,10 +9,17 @@ export function useClientesBloqueados() {
 
   useEffect(() => {
     const q = query(collection(db, "clientesBloqueados"), orderBy("fechaBloqueo", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
-      setClientes(snap.docs.map((d) => ({ cedula: d.id, ...d.data() } as ClienteBloqueado)));
-      setCargando(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setClientes(snap.docs.map((d) => ({ cedula: d.id, ...d.data() } as ClienteBloqueado)));
+        setCargando(false);
+      },
+      (err) => {
+        console.error("Error leyendo clientes bloqueados:", err);
+        setCargando(false);
+      }
+    );
     return unsub;
   }, []);
 

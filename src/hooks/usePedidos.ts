@@ -6,6 +6,7 @@ import type { EstadoPedido, Pedido } from "../types";
 export function usePedidos(estado?: EstadoPedido) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const base = collection(db, "pedidos");
@@ -13,12 +14,21 @@ export function usePedidos(estado?: EstadoPedido) {
       ? query(base, where("estado", "==", estado), orderBy("fechaCreacion", "desc"))
       : query(base, orderBy("fechaCreacion", "desc"));
 
-    const unsub = onSnapshot(q, (snap) => {
-      setPedidos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Pedido)));
-      setCargando(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setPedidos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Pedido)));
+        setError("");
+        setCargando(false);
+      },
+      (err) => {
+        console.error("Error leyendo pedidos:", err);
+        setError("No se pudieron cargar los pedidos.");
+        setCargando(false);
+      }
+    );
     return unsub;
   }, [estado]);
 
-  return { pedidos, cargando };
+  return { pedidos, cargando, error };
 }

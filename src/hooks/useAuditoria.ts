@@ -9,10 +9,17 @@ export function useAuditoria(cantidad = 80) {
 
   useEffect(() => {
     const q = query(collection(db, "auditoria"), orderBy("fecha", "desc"), limit(cantidad));
-    const unsub = onSnapshot(q, (snap) => {
-      setEntradas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EntradaAuditoria)));
-      setCargando(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setEntradas(snap.docs.map((d) => ({ id: d.id, ...d.data() } as EntradaAuditoria)));
+        setCargando(false);
+      },
+      (err) => {
+        console.error("Error leyendo auditoría:", err);
+        setCargando(false);
+      }
+    );
     return unsub;
   }, [cantidad]);
 

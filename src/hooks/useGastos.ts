@@ -9,10 +9,17 @@ export function useGastos() {
 
   useEffect(() => {
     const q = query(collection(db, "gastos"), orderBy("fecha", "desc"));
-    const unsub = onSnapshot(q, (snap) => {
-      setGastos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Gasto)));
-      setCargando(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setGastos(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Gasto)));
+        setCargando(false);
+      },
+      (err) => {
+        console.error("Error leyendo gastos:", err);
+        setCargando(false);
+      }
+    );
     return unsub;
   }, []);
 

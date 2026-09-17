@@ -6,7 +6,7 @@ import type { Especie } from "../../types";
 const COLORES = ["var(--water)", "var(--clay)", "var(--leaf)", "var(--water-mid)"];
 
 export default function Catalogo({ onPedir }: { onPedir: (especie: Especie) => void }) {
-  const { especies, cargando } = useEspecies(true);
+  const { especies, cargando, error } = useEspecies(true);
 
   return (
     <div>
@@ -16,7 +16,8 @@ export default function Catalogo({ onPedir }: { onPedir: (especie: Especie) => v
       <p className="device-sub">Precios por kilogramo · actualizado por la finca</p>
 
       {cargando && <p className="caption-note">Cargando disponibilidad...</p>}
-      {!cargando && especies.length === 0 && (
+      {error && <p className="field error">{error}</p>}
+      {!cargando && !error && especies.length === 0 && (
         <p className="caption-note">
           Todavía no hay especies cargadas. El encargado debe agregarlas desde el panel interno →
           Inventario.
