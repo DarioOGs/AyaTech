@@ -14,7 +14,8 @@ export type IconName =
   | "checkcircle"
   | "xcircle"
   | "send"
-  | "copy";
+  | "copy"
+  | "download";
 
 const viewBoxes: Partial<Record<IconName, string>> = { fish: "0 0 44 20" };
 
@@ -110,6 +111,13 @@ function paths(name: IconName) {
         <>
           <rect x="9" y="9" width="12" height="12" rx="2" />
           <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+        </>
+      );
+    case "download":
+      return (
+        <>
+          <path d="M12 3v12M7 10l5 5 5-5" />
+          <path d="M4 19h16" />
         </>
       );
   }

@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
 import { useGastos } from "../../hooks/useGastos";
 import { usePedidos } from "../../hooks/usePedidos";
 import { haceNDias, inicioDelDia, inicioDelMes, inicioDeSemana } from "../../utils/dates";
 import { kg, money } from "../../utils/format";
+import { descargarReportePdf } from "../../utils/pdf";
 import { linkReporteWhatsApp, textoReporte } from "../../utils/whatsapp";
 import Icon from "../Icon";
 
@@ -15,9 +17,17 @@ const ETIQUETAS: Record<Rango, string> = {
   todo: "general",
 };
 
+const TITULOS: Record<Rango, string> = {
+  hoy: "Hoy",
+  semana: "Esta semana",
+  mes: "Este mes",
+  todo: "Histórico completo",
+};
+
 export default function Reportes() {
   const { pedidos } = usePedidos("confirmado");
   const { gastos } = useGastos();
+  const { usuario } = useAuth();
   const [rango, setRango] = useState<Rango>("semana");
   const [copiado, setCopiado] = useState(false);
 
@@ -53,6 +63,17 @@ export default function Reportes() {
     navigator.clipboard.writeText(textoReporte(datosReporte)).then(() => {
       setCopiado(true);
       setTimeout(() => setCopiado(false), 2200);
+    });
+  }
+
+  function descargarPdf() {
+    descargarReportePdf({
+      periodoTitulo: TITULOS[rango],
+      generadoPor: usuario?.nombre ?? "Personal de la finca",
+      ventas: totalVentas,
+      gastos: totalGastos,
+      kilos: totalKilos,
+      porEspecie,
     });
   }
 
@@ -127,24 +148,35 @@ export default function Reportes() {
         </div>
 
         <div className="send-card">
-          <h3>Enviar reporte</h3>
-          <p>Un toque arma el mensaje con estas cifras — gratis, sin contratar ninguna API.</p>
+          <h3>Descargar reporte</h3>
+          <p>Genera un PDF con el resumen y el detalle por especie, listo para adjuntar donde quieras.</p>
+          <button className="btn btn-primary" onClick={descargarPdf}>
+            <Icon name="download" size={16} />
+            Descargar PDF
+          </button>
+
+          <h3 style={{ marginTop: 18 }}>Enviar reporte</h3>
+          <p>
+            Un toque abre WhatsApp con el mensaje ya escrito — tú eliges a quién enviárselo y
+            presionas enviar allá dentro. Es gratis, sin contratar ninguna API.
+          </p>
           <a
-            className="btn btn-primary"
+            className="btn btn-outline"
             href={linkReporteWhatsApp(datosReporte)}
             target="_blank"
             rel="noopener noreferrer"
           >
             <Icon name="send" size={16} />
-            Enviar por WhatsApp
+            Abrir mensaje de WhatsApp
           </a>
           <button className="btn btn-outline" onClick={copiarReporte}>
             <Icon name={copiado ? "check" : "copy"} size={16} />
-            {copiado ? "Reporte copiado" : "Copiar para correo"}
+            {copiado ? "Reporte copiado" : "Copiar texto para correo"}
           </button>
           <p className="caption-note">
-            "Copiar para correo" pone el texto del reporte en el portapapeles para que lo pegues
-            en un correo o donde prefieras.
+            El botón de WhatsApp y "Copiar texto" solo comparten las cifras en texto (WhatsApp no
+            permite adjuntar archivos desde un enlace); si quieres mandar el PDF, descárgalo
+            arriba y adjúntalo tú mismo en el chat o el correo.
           </p>
         </div>
       </div>
