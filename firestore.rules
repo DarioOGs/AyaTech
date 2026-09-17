@@ -1,0 +1,69 @@
+rules_version = '2';
+
+// Reglas de acceso a la base de datos.
+// "Staff" = cualquier persona con un documento en /usuarios (vendedor o admin).
+// El cliente que hace un pedido NUNCA inicia sesión: solo puede crear su
+// propio pedido y consultar si su cédula está bloqueada.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function esStaff() {
+      return estaAutenticado() &&
+        exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
+    }
+
+    function rolDe(uid) {
+      return get(/databases/$(database)/documents/usuarios/$(uid)).data.rol;
+    }
+
+    function esAdmin() {
+      return esStaff() && rolDe(request.auth.uid) == 'admin';
+    }
+
+    // Catálogo de especies: cualquiera lo puede leer (para el catálogo
+    // público), solo el personal lo puede editar.
+    match /especies/{especieId} {
+      allow read: if true;
+      allow write: if esStaff();
+    }
+
+    // Pedidos: el cliente (sin cuenta) puede crear el suyo. Leer y
+    // confirmar/cancelar solo lo puede hacer el personal.
+    match /pedidos/{pedidoId} {
+      allow create: if true;
+      allow read, update: if esStaff();
+      allow delete: if false;
+    }
+
+    // Bitácora de auditoría: nadie edita ni borra historial, solo se agrega.
+    match /auditoria/{entradaId} {
+      allow read: if esStaff();
+      allow create: if esStaff();
+      allow update, delete: if false;
+    }
+
+    // Clientes bloqueados: lectura pública para poder validar la cédula
+    // antes de dejar pasar un pedido nuevo; solo un admin bloquea/desbloquea.
+    match /clientesBloqueados/{cedula} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
+
+    // Gastos y reportes financieros: reservado al administrador.
+    match /gastos/{gastoId} {
+      allow read, write: if esAdmin();
+    }
+
+    // Cuentas del personal (vendedor/admin). El primer administrador se
+    // crea manualmente desde la consola de Firebase (ver README). A partir
+    // de ahí, solo un admin puede dar de alta a otro empleado.
+    match /usuarios/{uid} {
+      allow read: if esStaff();
+      allow write: if esAdmin();
+    }
+  }
+}
