@@ -11,7 +11,15 @@ export default function Pedidos() {
   const { pedidos, cargando } = usePedidos("pendiente");
   const { usuario } = useAuth();
   const [procesando, setProcesando] = useState<string | null>(null);
+  const [procesados, setProcesados] = useState<Set<string>>(new Set());
   const [errores, setErrores] = useState<Record<string, string>>({});
+
+  // Se quita de la vista apenas se confirma/cancela, sin esperar a que
+  // llegue de vuelta la actualización de Firestore — así nunca queda
+  // visible con los botones activos para procesarlo una segunda vez.
+  function marcarResuelto(pedidoId: string) {
+    setProcesados((prev) => new Set(prev).add(pedidoId));
+  }
 
   async function confirmar(pedido: Pedido) {
     setProcesando(pedido.id);
@@ -22,6 +30,10 @@ export default function Pedidos() {
         const pedidoSnap = await tx.get(pedidoRef);
         if (!pedidoSnap.exists()) throw new Error("El pedido ya no existe.");
         const datosPedido = pedidoSnap.data();
+
+        if (datosPedido.estado !== "pendiente") {
+          throw new Error("Este pedido ya fue procesado (por ti o por otro empleado).");
+        }
 
         const especieRef = doc(db, "especies", datosPedido.especieId);
         const especieSnap = await tx.get(especieRef);
@@ -36,6 +48,7 @@ export default function Pedidos() {
         tx.update(pedidoRef, { estado: "confirmado", fechaActualizacion: serverTimestamp() });
       });
 
+      marcarResuelto(pedido.id);
       await addDoc(collection(db, "auditoria"), {
         tipo: "venta",
         descripcion: `Venta registrada — folio ${folioDe(pedido.id)}`,
@@ -59,15 +72,23 @@ export default function Pedidos() {
   async function cancelar(pedido: Pedido) {
     const motivo = window.prompt("¿Por qué se cancela este pedido? (opcional)") ?? "";
     setProcesando(pedido.id);
+    setErrores((e) => ({ ...e, [pedido.id]: "" }));
     try {
-      const pedidoRef = doc(db, "pedidos", pedido.id);
       await runTransaction(db, async (tx) => {
+        const pedidoRef = doc(db, "pedidos", pedido.id);
+        const pedidoSnap = await tx.get(pedidoRef);
+        if (!pedidoSnap.exists()) throw new Error("El pedido ya no existe.");
+        if (pedidoSnap.data().estado !== "pendiente") {
+          throw new Error("Este pedido ya fue procesado (por ti o por otro empleado).");
+        }
         tx.update(pedidoRef, {
           estado: "cancelado",
           motivoCancelacion: motivo,
           fechaActualizacion: serverTimestamp(),
         });
       });
+
+      marcarResuelto(pedido.id);
       await addDoc(collection(db, "auditoria"), {
         tipo: "cancelacion",
         descripcion: `Venta cancelada — folio ${folioDe(pedido.id)}${motivo ? " — " + motivo : ""}`,
@@ -81,10 +102,14 @@ export default function Pedidos() {
         kilos: pedido.kilosSolicitados,
         total: pedido.valorTotal,
       });
+    } catch (err) {
+      setErrores((e) => ({ ...e, [pedido.id]: (err as Error).message }));
     } finally {
       setProcesando(null);
     }
   }
+
+  const visibles = pedidos.filter((p) => !procesados.has(p.id));
 
   return (
     <div>
@@ -94,7 +119,7 @@ export default function Pedidos() {
       </div>
 
       {cargando && <p className="caption-note">Cargando pedidos...</p>}
-      {!cargando && pedidos.length === 0 && (
+      {!cargando && visibles.length === 0 && (
         <p className="caption-note">No hay pedidos pendientes por ahora.</p>
       )}
 
@@ -111,7 +136,7 @@ export default function Pedidos() {
             </tr>
           </thead>
           <tbody>
-            {pedidos.map((p) => (
+            {visibles.map((p) => (
               <tr key={p.id}>
                 <td>{folioDe(p.id)}</td>
                 <td>
