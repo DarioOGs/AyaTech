@@ -14,9 +14,6 @@ export default function Pedidos() {
   const [procesados, setProcesados] = useState<Set<string>>(new Set());
   const [errores, setErrores] = useState<Record<string, string>>({});
 
-  // Se quita de la vista apenas se confirma/cancela, sin esperar a que
-  // llegue de vuelta la actualización de Firestore — así nunca queda
-  // visible con los botones activos para procesarlo una segunda vez.
   function marcarResuelto(pedidoId: string) {
     setProcesados((prev) => new Set(prev).add(pedidoId));
   }

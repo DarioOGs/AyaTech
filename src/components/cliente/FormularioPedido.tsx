@@ -49,7 +49,6 @@ export default function FormularioPedido({
 
     setEnviando(true);
     try {
-      // Si la cédula está bloqueada, no dejamos pasar el pedido.
       const bloqueoSnap = await getDoc(doc(db, "clientesBloqueados", cedula.trim()));
       if (bloqueoSnap.exists() && bloqueoSnap.data().activo) {
         setError("No es posible registrar el pedido con esta cédula. Comunícate con la finca.");
@@ -75,8 +74,6 @@ export default function FormularioPedido({
         fechaActualizacion: serverTimestamp() as any,
       };
 
-      // Esta escritura funciona incluso sin conexión: Firestore la guarda
-      // localmente y la envía sola cuando vuelva la señal.
       const ref = await addDoc(collection(db, "pedidos"), nuevoPedido);
       notificarNuevoPedido({
         folio: folioDe(ref.id),

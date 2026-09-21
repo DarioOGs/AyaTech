@@ -39,7 +39,6 @@ export default function AdminApp() {
     );
   }
 
-  // A partir de aquí, "usuario" siempre existe (viene de /usuarios/{uid}).
   const seccionValida =
     usuario!.rol === "admin" || !["bloqueados", "reportes", "gastos", "configuracion"].includes(seccion);
   const seccionActual = seccionValida ? seccion : "panel";

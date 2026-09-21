@@ -40,7 +40,6 @@ export default function PanelDashboard() {
       confirmados
         .filter((p) => p.fechaActualizacion && p.fechaActualizacion.toDate() >= hoy)
         .reduce((s, p) => s + p.valorTotal, 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [confirmados]
   );
 
@@ -49,7 +48,6 @@ export default function PanelDashboard() {
       confirmados
         .filter((p) => p.fechaActualizacion && p.fechaActualizacion.toDate() >= inicioMes)
         .reduce((s, p) => s + p.valorTotal, 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [confirmados]
   );
 
@@ -58,7 +56,6 @@ export default function PanelDashboard() {
       gastos
         .filter((g) => g.fecha && g.fecha.toDate() >= inicioMes)
         .reduce((s, g) => s + g.valor, 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [gastos]
   );
 

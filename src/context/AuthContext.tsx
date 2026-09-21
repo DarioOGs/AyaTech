@@ -28,12 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUsuario(null);
 
       if (user) {
-        // El empleado debe existir en /usuarios/{uid} (lo crea un admin,
-        // o el primer administrador se crea manualmente en Firebase Console).
-        // Mientras ese documento no exista, las reglas de seguridad niegan
-        // la lectura (para no revelar qué UID sí tienen acceso), así que
-        // Firestore devuelve "permission-denied" en vez de "no existe" —
-        // lo tratamos igual: la cuenta simplemente no tiene acceso todavía.
         try {
           const snap = await getDoc(doc(db, "usuarios", user.uid));
           if (snap.exists()) {

@@ -51,7 +51,6 @@ export function descargarReportePdf(datos: DatosReportePdf) {
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const finalY = (doc as any).lastAutoTable.finalY + 8;
 
   doc.setTextColor(11, 79, 92);

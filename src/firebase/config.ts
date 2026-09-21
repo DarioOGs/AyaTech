@@ -17,17 +17,9 @@ export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
 
-// App Check: le prueba a Firebase que las peticiones vienen de esta app real
-// y no de un script/bot. Es opcional a propósito — mientras no se configure
-// VITE_RECAPTCHA_SITE_KEY, todo sigue funcionando exactamente igual que
-// ahora. Ver README.md, sección "Protección contra pedidos falsos (App
-// Check)", para activarlo.
 const claveRecaptcha = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 if (claveRecaptcha) {
   if (import.meta.env.DEV) {
-    // En localhost, reCAPTCHA no puede validar el dominio: esto hace que
-    // Firebase muestre en la consola del navegador un "token de depuración"
-    // que se registra una sola vez en Firebase Console → App Check.
     (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
   initializeAppCheck(app, {
@@ -36,12 +28,6 @@ if (claveRecaptcha) {
   });
 }
 
-// Deja que Firestore guarde una copia local (IndexedDB) de todo lo que se
-// lee y escribe. Si el celular o el computador pierde la conexión, las
-// lecturas siguen funcionando con el último dato conocido y las escrituras
-// (nuevo pedido, ajuste de inventario, etc.) quedan en una fila de espera
-// que se envía sola en cuanto vuelve la señal. No hay que programar nada
-// más para cumplir con "que no se pierdan ventas sin internet".
 enableIndexedDbPersistence(db).catch((err) => {
   if (err.code === "failed-precondition") {
     console.warn(

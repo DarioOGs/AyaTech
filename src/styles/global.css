@@ -357,8 +357,6 @@ a {
   margin-bottom: 16px;
 }
 
-/* Cliente */
-/* Animaciones (respetan "reducir movimiento") */
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
@@ -375,7 +373,6 @@ a {
   }
 }
 
-/* Portada del catálogo */
 .catalog-hero {
   position: relative;
   overflow: hidden;
@@ -413,7 +410,6 @@ a {
   padding-block: 6px 30px;
 }
 
-/* Catálogo: una columna en celular, tienda en cuadrícula en computador */
 .storefront {
   max-width: 1080px;
   margin: 0 auto;
@@ -688,7 +684,6 @@ a {
   margin-bottom: 14px;
 }
 
-/* Admin */
 .admin-shell {
   display: grid;
   grid-template-columns: 220px 1fr;

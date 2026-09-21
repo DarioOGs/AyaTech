@@ -19,9 +19,6 @@ export default function ClienteApp() {
         recibir tus alevinos.
       </p>
       {estado.paso === "catalogo" ? (
-        // El catálogo se ve en grande en computador (como una tienda real)
-        // y en una sola columna en celular — no queda encerrado en la
-        // tarjeta angosta que sí usan el pedido y la confirmación.
         <div className="storefront fade-in" key="catalogo">
           <Catalogo onPedir={(especie) => setEstado({ paso: "pedido", especie })} />
         </div>
