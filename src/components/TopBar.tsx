@@ -35,18 +35,22 @@ export default function TopBar({
             <div className="sub">Finca Nueva Vida el Deseo · venta de alevinos</div>
           </div>
         </div>
-        <div className="segmented" role="tablist" aria-label="Cambiar de vista">
-          <button className={vista === "cliente" ? "active" : ""} onClick={() => onCambiarVista("cliente")}>
-            Vista cliente
-          </button>
-          <button className={vista === "admin" ? "active" : ""} onClick={() => onCambiarVista("admin")}>
-            Panel interno
-          </button>
-        </div>
         <span className={"status-pill" + (online ? "" : " offline")}>
           <span className="dot" />
           {online ? "En línea · sincronizado" : "Sin conexión · guardando local"}
         </span>
+
+        {vista === "cliente" ? (
+          <button className="staff-link" onClick={() => onCambiarVista("admin")}>
+            <Icon name="lock" size={14} />
+            Acceso del personal
+          </button>
+        ) : (
+          <button className="staff-link" onClick={() => onCambiarVista("cliente")}>
+            <Icon name="chevleft" size={14} />
+            Volver a la tienda
+          </button>
+        )}
       </header>
 
       {!online && (
