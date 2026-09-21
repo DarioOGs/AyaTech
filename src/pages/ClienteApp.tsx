@@ -19,7 +19,7 @@ export default function ClienteApp() {
         recibir tus alevinos.
       </p>
       <div className="cliente-wrap">
-        <div className="device">
+        <div className="device fade-in" key={estado.paso}>
           {estado.paso === "catalogo" && (
             <Catalogo onPedir={(especie) => setEstado({ paso: "pedido", especie })} />
           )}

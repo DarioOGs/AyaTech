@@ -98,6 +98,22 @@ Antes de terminar el proyecto:
 Desde ese momento, el proyecto, el hosting, la base de datos y el dominio quedan completamente
 a nombre de la finca — no dependen de tu cuenta ni de tu computador.
 
+## 6. Fotos de las especies (opcional)
+
+En **Panel interno → Inventario**, cada especie tiene un botón "Agregar"/"Cambiar" foto. No sube
+el archivo directamente: te lleva a [Cloudinary](https://cloudinary.com) (gratis, sin tarjeta),
+donde subes la imagen y copias su enlace para pegarlo en el campo "URL de la foto". Esa misma
+foto aparece automáticamente en el catálogo que ven los clientes. Mientras una especie no tenga
+foto, se muestra un ícono de pez de respaldo.
+
+## 7. Notificaciones por correo (opcional)
+
+Si quieren que llegue un correo real al administrador por cada pedido nuevo (y al cliente cuando
+se confirma o cancela el suyo), sigue las instrucciones de
+[`notificaciones/README.md`](notificaciones/README.md) — toma un par de minutos, es gratis y no
+requiere tarjeta. Mientras no lo configures, la app funciona exactamente igual, solo que sin
+enviar esos correos.
+
 ## Estructura del proyecto
 
 ```

@@ -14,6 +14,7 @@ export interface Especie {
   kilosDisponibles: number;
   precioPorKilo: number;
   activo: boolean;
+  imagenUrl?: string;
 }
 
 export type EstadoPedido = "pendiente" | "confirmado" | "cancelado";
@@ -23,6 +24,7 @@ export interface Pedido {
   clienteNombre: string;
   clienteCedula: string;
   clienteTelefono: string;
+  clienteCorreo: string;
   especieId: string;
   especieNombre: string;
   kilosSolicitados: number;

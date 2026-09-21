@@ -3,7 +3,9 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase/config";
 import { usePedidos } from "../../hooks/usePedidos";
+import type { Pedido } from "../../types";
 import { folioDe, kg, money } from "../../utils/format";
+import { notificarResultadoPedido } from "../../utils/notificaciones";
 
 export default function Pedidos() {
   const { pedidos, cargando } = usePedidos("pendiente");
@@ -11,47 +13,54 @@ export default function Pedidos() {
   const [procesando, setProcesando] = useState<string | null>(null);
   const [errores, setErrores] = useState<Record<string, string>>({});
 
-  async function confirmar(pedidoId: string) {
-    setProcesando(pedidoId);
-    setErrores((e) => ({ ...e, [pedidoId]: "" }));
+  async function confirmar(pedido: Pedido) {
+    setProcesando(pedido.id);
+    setErrores((e) => ({ ...e, [pedido.id]: "" }));
     try {
       await runTransaction(db, async (tx) => {
-        const pedidoRef = doc(db, "pedidos", pedidoId);
+        const pedidoRef = doc(db, "pedidos", pedido.id);
         const pedidoSnap = await tx.get(pedidoRef);
         if (!pedidoSnap.exists()) throw new Error("El pedido ya no existe.");
-        const pedido = pedidoSnap.data();
+        const datosPedido = pedidoSnap.data();
 
-        const especieRef = doc(db, "especies", pedido.especieId);
+        const especieRef = doc(db, "especies", datosPedido.especieId);
         const especieSnap = await tx.get(especieRef);
         if (!especieSnap.exists()) throw new Error("La especie ya no existe.");
         const especie = especieSnap.data();
 
-        if (especie.kilosDisponibles < pedido.kilosSolicitados) {
+        if (especie.kilosDisponibles < datosPedido.kilosSolicitados) {
           throw new Error("Ya no hay suficiente disponibilidad para confirmar este pedido.");
         }
 
-        tx.update(especieRef, { kilosDisponibles: especie.kilosDisponibles - pedido.kilosSolicitados });
+        tx.update(especieRef, { kilosDisponibles: especie.kilosDisponibles - datosPedido.kilosSolicitados });
         tx.update(pedidoRef, { estado: "confirmado", fechaActualizacion: serverTimestamp() });
       });
 
       await addDoc(collection(db, "auditoria"), {
         tipo: "venta",
-        descripcion: `Venta registrada — folio ${folioDe(pedidoId)}`,
+        descripcion: `Venta registrada — folio ${folioDe(pedido.id)}`,
         usuarioNombre: usuario?.nombre ?? "Personal",
         fecha: serverTimestamp(),
       });
+      notificarResultadoPedido("confirmado", {
+        folio: folioDe(pedido.id),
+        clienteCorreo: pedido.clienteCorreo,
+        especieNombre: pedido.especieNombre,
+        kilos: pedido.kilosSolicitados,
+        total: pedido.valorTotal,
+      });
     } catch (err) {
-      setErrores((e) => ({ ...e, [pedidoId]: (err as Error).message }));
+      setErrores((e) => ({ ...e, [pedido.id]: (err as Error).message }));
     } finally {
       setProcesando(null);
     }
   }
 
-  async function cancelar(pedidoId: string) {
+  async function cancelar(pedido: Pedido) {
     const motivo = window.prompt("¿Por qué se cancela este pedido? (opcional)") ?? "";
-    setProcesando(pedidoId);
+    setProcesando(pedido.id);
     try {
-      const pedidoRef = doc(db, "pedidos", pedidoId);
+      const pedidoRef = doc(db, "pedidos", pedido.id);
       await runTransaction(db, async (tx) => {
         tx.update(pedidoRef, {
           estado: "cancelado",
@@ -61,9 +70,16 @@ export default function Pedidos() {
       });
       await addDoc(collection(db, "auditoria"), {
         tipo: "cancelacion",
-        descripcion: `Venta cancelada — folio ${folioDe(pedidoId)}${motivo ? " — " + motivo : ""}`,
+        descripcion: `Venta cancelada — folio ${folioDe(pedido.id)}${motivo ? " — " + motivo : ""}`,
         usuarioNombre: usuario?.nombre ?? "Personal",
         fecha: serverTimestamp(),
+      });
+      notificarResultadoPedido("cancelado", {
+        folio: folioDe(pedido.id),
+        clienteCorreo: pedido.clienteCorreo,
+        especieNombre: pedido.especieNombre,
+        kilos: pedido.kilosSolicitados,
+        total: pedido.valorTotal,
       });
     } finally {
       setProcesando(null);
@@ -110,10 +126,10 @@ export default function Pedidos() {
                 <td className="num">{money(p.valorTotal)}</td>
                 <td>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                    <button className="btn btn-primary btn-sm" disabled={procesando === p.id} onClick={() => confirmar(p.id)}>
+                    <button className="btn btn-primary btn-sm" disabled={procesando === p.id} onClick={() => confirmar(p)}>
                       Confirmar
                     </button>
-                    <button className="btn btn-danger-line btn-sm" disabled={procesando === p.id} onClick={() => cancelar(p.id)}>
+                    <button className="btn btn-danger-line btn-sm" disabled={procesando === p.id} onClick={() => cancelar(p)}>
                       Cancelar
                     </button>
                   </div>

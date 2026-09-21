@@ -45,7 +45,7 @@ export default function AdminApp() {
   return (
     <div className="admin-shell">
       <Sidebar seccion={seccionActual} onCambiar={setSeccion} />
-      <div className="panel">
+      <div className="panel fade-in" key={seccionActual}>
         {seccionActual === "panel" && <PanelDashboard />}
         {seccionActual === "inventario" && <Inventario />}
         {seccionActual === "pedidos" && <Pedidos />}

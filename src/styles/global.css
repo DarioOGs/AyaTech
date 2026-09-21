@@ -167,30 +167,6 @@ a {
   color: var(--ink-faint);
 }
 
-.segmented {
-  display: inline-flex;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 3px;
-  gap: 2px;
-}
-.segmented button {
-  border: none;
-  background: transparent;
-  color: var(--ink-soft);
-  padding: 7px 15px;
-  border-radius: 999px;
-  font-size: 0.86rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-.segmented button.active {
-  background: var(--surface);
-  color: var(--water);
-  box-shadow: var(--shadow);
-}
-
 .status-pill {
   display: inline-flex;
   align-items: center;
@@ -276,9 +252,21 @@ a {
   font-weight: 600;
   font-size: 0.88rem;
   padding: 10px 16px;
+  transition: transform 0.15s ease, filter 0.15s ease, background 0.15s ease;
 }
-.btn:active {
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0);
   filter: brightness(0.94);
+}
+.species-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.species-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 .btn-primary {
   background: var(--btn-primary-bg);
@@ -370,6 +358,55 @@ a {
 }
 
 /* Cliente */
+/* Animaciones (respetan "reducir movimiento") */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in {
+    animation: fadeSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+/* Portada del catálogo */
+.catalog-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  padding: 22px 18px 20px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, var(--water) 0%, var(--water-mid) 100%);
+  color: var(--btn-primary-fg);
+}
+.catalog-hero .pattern {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.16;
+  pointer-events: none;
+}
+.catalog-hero h2 {
+  position: relative;
+  margin: 0 0 4px;
+  color: inherit;
+  font-size: 1.3rem;
+}
+.catalog-hero p {
+  position: relative;
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.92;
+  text-transform: capitalize;
+}
+
 .cliente-wrap {
   display: flex;
   justify-content: center;
@@ -411,9 +448,9 @@ a {
   margin-bottom: 10px;
 }
 .species-fish {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   background: var(--surface);
   flex: none;
   display: flex;
@@ -421,6 +458,12 @@ a {
   justify-content: center;
   color: var(--fish-color, var(--water));
   border: 1px solid var(--border);
+  overflow: hidden;
+}
+.species-fish img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .species-info {
   flex: 1;
@@ -741,6 +784,31 @@ a {
   border-radius: 14px;
   padding: 14px;
 }
+.stat-tile .icon-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+.stat-tile .icon-badge.water {
+  background: var(--surface-3);
+  color: var(--water-mid);
+}
+.stat-tile .icon-badge.amber {
+  background: var(--amber-bg);
+  color: var(--amber);
+}
+.stat-tile .icon-badge.leaf {
+  background: var(--leaf-bg);
+  color: var(--leaf);
+}
+.stat-tile .icon-badge.clay {
+  background: var(--surface-3);
+  color: var(--clay);
+}
 .stat-tile .lbl {
   font-size: 0.74rem;
   color: var(--ink-faint);
@@ -813,6 +881,13 @@ tr:last-child td {
   border: 1px solid var(--border);
   color: var(--fish-color, var(--water));
   margin-right: 8px;
+  overflow: hidden;
+  flex: none;
+}
+.mini-fish img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .cell-species {
   display: flex;

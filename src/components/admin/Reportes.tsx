@@ -4,8 +4,10 @@ import { useGastos } from "../../hooks/useGastos";
 import { usePedidos } from "../../hooks/usePedidos";
 import { haceNDias, inicioDelDia, inicioDelMes, inicioDeSemana } from "../../utils/dates";
 import { kg, money } from "../../utils/format";
+import { colorDeEspecie } from "../../utils/colors";
 import { descargarReportePdf } from "../../utils/pdf";
 import { linkReporteWhatsApp, textoReporte } from "../../utils/whatsapp";
+import EspecieThumb from "../EspecieThumb";
 import Icon from "../Icon";
 
 type Rango = "hoy" | "semana" | "mes" | "todo";
@@ -132,10 +134,8 @@ export default function Reportes() {
                 )}
                 {porEspecie.map(([nombre, datos]) => (
                   <tr key={nombre}>
-                    <td className="cell-species">
-                      <span className="mini-fish">
-                        <Icon name="fish" size={15} />
-                      </span>
+                    <td className="cell-species" style={{ ["--fish-color" as string]: colorDeEspecie(nombre) }}>
+                      <EspecieThumb nombre={nombre} />
                       {nombre}
                     </td>
                     <td className="num">{kg(datos.kilos)}</td>

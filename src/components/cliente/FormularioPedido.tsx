@@ -2,10 +2,12 @@ import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/fires
 import { useState } from "react";
 import { db } from "../../firebase/config";
 import type { Especie, Pedido } from "../../types";
-import { money } from "../../utils/format";
+import { folioDe, money } from "../../utils/format";
+import { notificarNuevoPedido } from "../../utils/notificaciones";
 import Icon from "../Icon";
 
 const COSTO_DOMICILIO = 5000;
+const SOLO_LETRAS = /[^A-Za-zÀ-ÿñÑ\s]/g;
 
 export default function FormularioPedido({
   especie,
@@ -22,6 +24,7 @@ export default function FormularioPedido({
   const [nombre, setNombre] = useState("");
   const [cedula, setCedula] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [correo, setCorreo] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,7 +41,7 @@ export default function FormularioPedido({
 
   async function confirmar() {
     setError("");
-    if (!nombre.trim()) return setError("Escribe tu nombre completo.");
+    if (!nombre.trim() || nombre.trim().length < 3) return setError("Escribe tu nombre completo.");
     if (!/^\d{6,10}$/.test(cedula.trim())) return setError("Escribe un número de cédula válido.");
     if (!telefono.trim()) return setError("Escribe un número de WhatsApp de contacto.");
     if (domicilio && !direccion.trim()) return setError("Escribe la dirección de entrega.");
@@ -57,6 +60,7 @@ export default function FormularioPedido({
         clienteNombre: nombre.trim(),
         clienteCedula: cedula.trim(),
         clienteTelefono: telefono.trim(),
+        clienteCorreo: correo.trim(),
         especieId: especie.id,
         especieNombre: especie.nombre,
         kilosSolicitados: kilos,
@@ -73,6 +77,15 @@ export default function FormularioPedido({
       // Esta escritura funciona incluso sin conexión: Firestore la guarda
       // localmente y la envía sola cuando vuelva la señal.
       const ref = await addDoc(collection(db, "pedidos"), nuevoPedido);
+      notificarNuevoPedido({
+        folio: folioDe(ref.id),
+        clienteNombre: nuevoPedido.clienteNombre,
+        clienteTelefono: nuevoPedido.clienteTelefono,
+        especieNombre: nuevoPedido.especieNombre,
+        kilos: nuevoPedido.kilosSolicitados,
+        domicilio: nuevoPedido.domicilio,
+        total: nuevoPedido.valorTotal,
+      });
       onConfirmado(ref.id, { id: ref.id, ...nuevoPedido });
     } catch (e) {
       console.error(e);
@@ -135,7 +148,13 @@ export default function FormularioPedido({
 
       <div className="field">
         <label>Nombre completo</label>
-        <input type="text" placeholder="Ej: Carlos Pérez Martínez" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+        <input
+          type="text"
+          placeholder="Ej: Carlos Pérez Martínez"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value.replace(SOLO_LETRAS, ""))}
+        />
+        <div className="hint">Solo letras, sin números ni símbolos.</div>
       </div>
       <div className="field">
         <label>Número de cédula</label>
@@ -154,6 +173,15 @@ export default function FormularioPedido({
       <div className="field">
         <label>WhatsApp de contacto</label>
         <input type="tel" placeholder="Ej: 300 000 0000" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+      </div>
+      <div className="field">
+        <label>Correo electrónico (opcional)</label>
+        <input
+          type="email"
+          placeholder="Para avisarte si confirman o cancelan tu pedido"
+          value={correo}
+          onChange={(e) => setCorreo(e.target.value)}
+        />
       </div>
 
       <div className="summary-card">

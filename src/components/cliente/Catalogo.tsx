@@ -1,19 +1,35 @@
 import { useEspecies } from "../../hooks/useEspecies";
+import { colorDeEspecie } from "../../utils/colors";
 import { money } from "../../utils/format";
-import Icon from "../Icon";
+import EspecieThumb from "../EspecieThumb";
 import type { Especie } from "../../types";
-
-const COLORES = ["var(--water)", "var(--clay)", "var(--leaf)", "var(--water-mid)"];
 
 export default function Catalogo({ onPedir }: { onPedir: (especie: Especie) => void }) {
   const { especies, cargando, error } = useEspecies(true);
+  const hoy = new Date().toLocaleDateString("es-CO", { weekday: "long", day: "numeric", month: "long" });
 
   return (
     <div>
-      <div className="device-head">
-        <h2>Disponibilidad de hoy</h2>
+      <div className="catalog-hero">
+        <svg className="pattern" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <pattern id="fishPattern" width="46" height="34" patternUnits="userSpaceOnUse" patternTransform="rotate(-10)">
+              <path
+                d="M3 12C7 5 15 2 22 2c6 0 11 3 14 7l5-4v14l-5-4c-3 4-8 7-14 7-7 0-15-3-19-10z"
+                fill="none"
+                stroke="white"
+                strokeWidth="1.4"
+                transform="scale(0.55)"
+              />
+            </pattern>
+          </defs>
+          <rect width="200" height="200" fill="url(#fishPattern)" />
+        </svg>
+        <h2>Alevinos frescos de la finca</h2>
+        <p>Disponibilidad actualizada · {hoy}</p>
       </div>
-      <p className="device-sub">Precios por kilogramo · actualizado por la finca</p>
+
+      <p className="device-sub">Precios por kilogramo</p>
 
       {cargando && <p className="caption-note">Cargando disponibilidad...</p>}
       {error && <p className="field error">{error}</p>}
@@ -27,10 +43,12 @@ export default function Catalogo({ onPedir }: { onPedir: (especie: Especie) => v
       {especies.map((especie, i) => {
         const agotado = especie.kilosDisponibles <= 0;
         return (
-          <div className="species-card" style={{ ["--fish-color" as string]: agotado ? "var(--ink-faint)" : COLORES[i % COLORES.length] }} key={especie.id}>
-            <div className="species-fish">
-              <Icon name="fish" size={26} />
-            </div>
+          <div
+            className="species-card fade-in"
+            style={{ ["--fish-color" as string]: agotado ? "var(--ink-faint)" : colorDeEspecie(especie.nombre), animationDelay: `${i * 60}ms` }}
+            key={especie.id}
+          >
+            <EspecieThumb nombre={especie.nombre} imagenUrl={especie.imagenUrl} tamano="grande" />
             <div className="species-info">
               <div className="sp-name">{especie.nombre}</div>
               <div className="sp-meta">

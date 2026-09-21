@@ -98,21 +98,33 @@ export default function PanelDashboard() {
 
       <div className="stat-grid">
         <div className="stat-tile">
+          <div className="icon-badge water">
+            <Icon name="box" size={16} />
+          </div>
           <div className="lbl">Kilos disponibles</div>
           <div className="val num">{kg(kilosDisponibles)}</div>
           <div className="delta">{especies.length} especies activas</div>
         </div>
         <div className="stat-tile">
+          <div className="icon-badge amber">
+            <Icon name="list" size={16} />
+          </div>
           <div className="lbl">Pedidos pendientes</div>
           <div className="val num">{pendientes.length}</div>
           <div className="delta">esperan confirmación</div>
         </div>
         <div className="stat-tile">
+          <div className="icon-badge leaf">
+            <Icon name="checkcircle" size={16} />
+          </div>
           <div className="lbl">Ventas de hoy</div>
           <div className="val num">{money(ventasHoy)}</div>
           <div className="delta">ventas confirmadas hoy</div>
         </div>
         <div className="stat-tile">
+          <div className="icon-badge clay">
+            <Icon name="wallet" size={16} />
+          </div>
           <div className="lbl">Ganancia neta del mes</div>
           <div className="val num">{money(gananciaNeta)}</div>
           <div className="delta">ventas − gastos del mes</div>

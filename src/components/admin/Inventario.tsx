@@ -3,16 +3,35 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase/config";
 import { useEspecies } from "../../hooks/useEspecies";
+import EspecieThumb from "../EspecieThumb";
+import { colorDeEspecie } from "../../utils/colors";
 import { kg, money } from "../../utils/format";
 import Icon from "../Icon";
+
+const CLOUDINARY_URL = "https://cloudinary.com/console/media_library";
+
+function AyudaFoto() {
+  return (
+    <div className="hint">
+      ¿No tienes el enlace?{" "}
+      <a href={CLOUDINARY_URL} target="_blank" rel="noopener noreferrer">
+        Abre Cloudinary (gratis) ↗
+      </a>
+      , sube la foto ahí, luego clic derecho sobre la imagen → "Copiar dirección de la imagen" y
+      pégala aquí.
+    </div>
+  );
+}
 
 export default function Inventario() {
   const { especies } = useEspecies(false);
   const { usuario } = useAuth();
   const [ajustes, setAjustes] = useState<Record<string, string>>({});
   const [mostrarForm, setMostrarForm] = useState(false);
-  const [nuevaEspecie, setNuevaEspecie] = useState({ nombre: "", kilos: "", precio: "" });
+  const [nuevaEspecie, setNuevaEspecie] = useState({ nombre: "", kilos: "", precio: "", imagenUrl: "" });
   const [guardando, setGuardando] = useState(false);
+  const [fotoAbierta, setFotoAbierta] = useState<string | null>(null);
+  const [fotoValor, setFotoValor] = useState("");
 
   async function aplicarAjuste(especieId: string, especieNombre: string, actual: number, signo: 1 | -1) {
     const valor = parseFloat(ajustes[especieId] ?? "");
@@ -43,6 +62,7 @@ export default function Inventario() {
         nombre: nuevaEspecie.nombre.trim(),
         kilosDisponibles: kilos,
         precioPorKilo: precio,
+        imagenUrl: nuevaEspecie.imagenUrl.trim(),
         activo: true,
       });
       await addDoc(collection(db, "auditoria"), {
@@ -51,11 +71,21 @@ export default function Inventario() {
         usuarioNombre: usuario?.nombre ?? "Personal",
         fecha: serverTimestamp(),
       });
-      setNuevaEspecie({ nombre: "", kilos: "", precio: "" });
+      setNuevaEspecie({ nombre: "", kilos: "", precio: "", imagenUrl: "" });
       setMostrarForm(false);
     } finally {
       setGuardando(false);
     }
+  }
+
+  function abrirFoto(especieId: string, actual?: string) {
+    setFotoAbierta(especieId);
+    setFotoValor(actual ?? "");
+  }
+
+  async function guardarFoto(especieId: string) {
+    await updateDoc(doc(db, "especies", especieId), { imagenUrl: fotoValor.trim() });
+    setFotoAbierta(null);
   }
 
   return (
@@ -84,6 +114,16 @@ export default function Inventario() {
             <label>Precio por kilo</label>
             <input type="number" placeholder="0" value={nuevaEspecie.precio} onChange={(e) => setNuevaEspecie((v) => ({ ...v, precio: e.target.value }))} />
           </div>
+          <div className="field" style={{ gridColumn: "1/-1" }}>
+            <label>URL de la foto (opcional)</label>
+            <input
+              type="text"
+              placeholder="https://res.cloudinary.com/..."
+              value={nuevaEspecie.imagenUrl}
+              onChange={(e) => setNuevaEspecie((v) => ({ ...v, imagenUrl: e.target.value }))}
+            />
+            <AyudaFoto />
+          </div>
           <div className="full">
             <button className="btn btn-outline btn-sm" onClick={() => setMostrarForm(false)}>
               Cancelar
@@ -100,6 +140,7 @@ export default function Inventario() {
           <thead>
             <tr>
               <th>Especie</th>
+              <th>Foto</th>
               <th>Precio / kg</th>
               <th>Disponible</th>
               <th>Ajustar kilos</th>
@@ -108,11 +149,31 @@ export default function Inventario() {
           <tbody>
             {especies.map((e) => (
               <tr key={e.id} className={e.kilosDisponibles <= 0 ? "row-muted" : ""}>
-                <td className="cell-species">
-                  <span className="mini-fish">
-                    <Icon name="fish" size={15} />
-                  </span>
+                <td className="cell-species" style={{ ["--fish-color" as string]: colorDeEspecie(e.nombre) }}>
+                  <EspecieThumb nombre={e.nombre} imagenUrl={e.imagenUrl} />
                   {e.nombre}
+                </td>
+                <td>
+                  <button className="btn btn-outline btn-sm" onClick={() => abrirFoto(e.id, e.imagenUrl)}>
+                    {e.imagenUrl ? "Cambiar" : "Agregar"}
+                  </button>
+                  {fotoAbierta === e.id && (
+                    <div className="inline-form" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
+                      <div className="field">
+                        <label>URL de la foto</label>
+                        <input type="text" placeholder="https://res.cloudinary.com/..." value={fotoValor} onChange={(ev) => setFotoValor(ev.target.value)} />
+                        <AyudaFoto />
+                      </div>
+                      <div className="full">
+                        <button className="btn btn-outline btn-sm" onClick={() => setFotoAbierta(null)}>
+                          Cancelar
+                        </button>
+                        <button className="btn btn-primary btn-sm" onClick={() => guardarFoto(e.id)}>
+                          Guardar foto
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </td>
                 <td className="num">{money(e.precioPorKilo)}</td>
                 <td className="num">{kg(e.kilosDisponibles)}</td>
