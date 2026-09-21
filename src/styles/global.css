@@ -412,6 +412,32 @@ a {
   justify-content: center;
   padding-block: 6px 30px;
 }
+
+/* Catálogo: una columna en celular, tienda en cuadrícula en computador */
+.storefront {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-block: 6px 30px;
+}
+.species-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .species-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+  .catalog-hero {
+    padding: 32px 34px 30px;
+  }
+  .catalog-hero h2 {
+    font-size: 1.7rem;
+  }
+  .catalog-hero p {
+    font-size: 0.95rem;
+  }
+}
 .device {
   width: 100%;
   max-width: 380px;
@@ -445,7 +471,6 @@ a {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 12px;
-  margin-bottom: 10px;
 }
 .species-fish {
   width: 56px;

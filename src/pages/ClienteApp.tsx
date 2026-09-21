@@ -18,27 +18,33 @@ export default function ClienteApp() {
         Consulta la disponibilidad y registra tu pedido. El pago se hace en persona al recoger o
         recibir tus alevinos.
       </p>
-      <div className="cliente-wrap">
-        <div className="device fade-in" key={estado.paso}>
-          {estado.paso === "catalogo" && (
-            <Catalogo onPedir={(especie) => setEstado({ paso: "pedido", especie })} />
-          )}
-          {estado.paso === "pedido" && (
-            <FormularioPedido
-              especie={estado.especie}
-              onVolver={() => setEstado({ paso: "catalogo" })}
-              onConfirmado={(folioId, pedido) => setEstado({ paso: "confirmacion", folioId, pedido })}
-            />
-          )}
-          {estado.paso === "confirmacion" && (
-            <Confirmacion
-              folioId={estado.folioId}
-              pedido={estado.pedido}
-              onNuevoPedido={() => setEstado({ paso: "catalogo" })}
-            />
-          )}
+      {estado.paso === "catalogo" ? (
+        // El catálogo se ve en grande en computador (como una tienda real)
+        // y en una sola columna en celular — no queda encerrado en la
+        // tarjeta angosta que sí usan el pedido y la confirmación.
+        <div className="storefront fade-in" key="catalogo">
+          <Catalogo onPedir={(especie) => setEstado({ paso: "pedido", especie })} />
         </div>
-      </div>
+      ) : (
+        <div className="cliente-wrap">
+          <div className="device fade-in" key={estado.paso}>
+            {estado.paso === "pedido" && (
+              <FormularioPedido
+                especie={estado.especie}
+                onVolver={() => setEstado({ paso: "catalogo" })}
+                onConfirmado={(folioId, pedido) => setEstado({ paso: "confirmacion", folioId, pedido })}
+              />
+            )}
+            {estado.paso === "confirmacion" && (
+              <Confirmacion
+                folioId={estado.folioId}
+                pedido={estado.pedido}
+                onNuevoPedido={() => setEstado({ paso: "catalogo" })}
+              />
+            )}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

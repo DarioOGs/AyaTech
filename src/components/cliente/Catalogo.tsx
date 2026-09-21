@@ -40,41 +40,43 @@ export default function Catalogo({ onPedir }: { onPedir: (especie: Especie) => v
         </p>
       )}
 
-      {especies.map((especie, i) => {
-        const agotado = especie.kilosDisponibles <= 0;
-        return (
-          <div
-            className="species-card fade-in"
-            style={{ ["--fish-color" as string]: agotado ? "var(--ink-faint)" : colorDeEspecie(especie.nombre), animationDelay: `${i * 60}ms` }}
-            key={especie.id}
-          >
-            <EspecieThumb nombre={especie.nombre} imagenUrl={especie.imagenUrl} tamano="grande" />
-            <div className="species-info">
-              <div className="sp-name">{especie.nombre}</div>
-              <div className="sp-meta">
-                {agotado ? (
-                  <span className="chip chip-danger">Agotado</span>
-                ) : (
-                  <span className="chip chip-leaf">
-                    {especie.kilosDisponibles.toLocaleString("es-CO", { minimumFractionDigits: 1 })} kg
-                    disponibles
-                  </span>
-                )}
+      <div className="species-grid">
+        {especies.map((especie, i) => {
+          const agotado = especie.kilosDisponibles <= 0;
+          return (
+            <div
+              className="species-card fade-in"
+              style={{ ["--fish-color" as string]: agotado ? "var(--ink-faint)" : colorDeEspecie(especie.nombre), animationDelay: `${i * 60}ms` }}
+              key={especie.id}
+            >
+              <EspecieThumb nombre={especie.nombre} imagenUrl={especie.imagenUrl} tamano="grande" />
+              <div className="species-info">
+                <div className="sp-name">{especie.nombre}</div>
+                <div className="sp-meta">
+                  {agotado ? (
+                    <span className="chip chip-danger">Agotado</span>
+                  ) : (
+                    <span className="chip chip-leaf">
+                      {especie.kilosDisponibles.toLocaleString("es-CO", { minimumFractionDigits: 1 })} kg
+                      disponibles
+                    </span>
+                  )}
+                </div>
+                <div className="sp-price num">{money(especie.precioPorKilo)} / kg</div>
               </div>
-              <div className="sp-price num">{money(especie.precioPorKilo)} / kg</div>
+              {agotado ? (
+                <button className="btn btn-outline btn-sm" disabled>
+                  Sin stock
+                </button>
+              ) : (
+                <button className="btn btn-primary btn-sm" onClick={() => onPedir(especie)}>
+                  Pedir
+                </button>
+              )}
             </div>
-            {agotado ? (
-              <button className="btn btn-outline btn-sm" disabled>
-                Sin stock
-              </button>
-            ) : (
-              <button className="btn btn-primary btn-sm" onClick={() => onPedir(especie)}>
-                Pedir
-              </button>
-            )}
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
 
       <p className="caption-note">
         ¿No ves lo que buscas? La disponibilidad se actualiza apenas el encargado registra una
