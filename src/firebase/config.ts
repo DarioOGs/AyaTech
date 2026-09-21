@@ -1,5 +1,4 @@
 import { initializeApp } from "firebase/app";
-import { ReCaptchaEnterpriseProvider, initializeAppCheck } from "firebase/app-check";
 import { GoogleAuthProvider, getAuth } from "firebase/auth";
 import { enableIndexedDbPersistence, getFirestore } from "firebase/firestore";
 
@@ -16,17 +15,6 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const db = getFirestore(app);
-
-const claveRecaptcha = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-if (claveRecaptcha) {
-  if (import.meta.env.DEV) {
-    (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-  }
-  initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(claveRecaptcha),
-    isTokenAutoRefreshEnabled: true,
-  });
-}
 
 enableIndexedDbPersistence(db).catch((err) => {
   if (err.code === "failed-precondition") {
