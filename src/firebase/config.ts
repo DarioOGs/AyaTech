@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { ReCaptchaV3Provider, initializeAppCheck } from "firebase/app-check";
+import { ReCaptchaEnterpriseProvider, initializeAppCheck } from "firebase/app-check";
 import { GoogleAuthProvider, getAuth } from "firebase/auth";
 import { enableIndexedDbPersistence, getFirestore } from "firebase/firestore";
 
@@ -31,7 +31,7 @@ if (claveRecaptcha) {
     (self as unknown as { FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
   }
   initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider(claveRecaptcha),
+    provider: new ReCaptchaEnterpriseProvider(claveRecaptcha),
     isTokenAutoRefreshEnabled: true,
   });
 }

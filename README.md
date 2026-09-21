@@ -125,15 +125,19 @@ tiempo real la próxima vez que alguien haga un pedido.
 Como el formulario de pedido no pide cuenta (a propósito, para no incomodar al cliente),
 técnicamente cualquiera podría escribir un script que mande miles de pedidos falsos y agote la
 cuota gratuita de Firebase. **Firebase App Check** evita esto: hace que cada pedido lleve una
-"firma" invisible que prueba que viene de verdad desde tu página web (usando reCAPTCHA v3, que no
-le muestra ningún acertijo al cliente, trabaja en segundo plano) y no de un script.
+"firma" invisible que prueba que viene de verdad desde tu página web (usando reCAPTCHA
+Enterprise, que no le muestra ningún acertijo al cliente, trabaja en segundo plano) y no de un
+script.
 
-Es completamente opcional y gratis. Mientras no lo actives, la app funciona exactamente igual.
+Es completamente opcional y gratis dentro de su capa gratuita (10.000 verificaciones al mes,
+muchísimo más de lo que una finca necesita). Mientras no lo actives, la app funciona exactamente
+igual.
 
 **Para activarlo:**
 
 1. Firebase Console → **Build → App Check** → "Apps" → selecciona tu app web → proveedor
-   **reCAPTCHA v3** → Firebase te genera automáticamente una clave de sitio.
+   **reCAPTCHA Enterprise** (el reCAPTCHA "clásico" ya no deja registrarse desde Firebase) →
+   Firebase te genera automáticamente una clave de sitio.
 2. Copia esa clave a tu `.env`:
    ```
    VITE_RECAPTCHA_SITE_KEY=6Lc...
