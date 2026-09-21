@@ -45,6 +45,7 @@ export type TipoAuditoria =
   | "adicion_kg"
   | "reduccion_kg"
   | "nueva_especie"
+  | "especie_eliminada"
   | "cambio_precio"
   | "bloqueo"
   | "desbloqueo"

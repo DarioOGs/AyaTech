@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase/config";
@@ -121,6 +121,21 @@ export default function Inventario() {
     });
   }
 
+  async function eliminarEspecie(especie: Especie) {
+    const confirmado = window.confirm(
+      `¿Eliminar "${especie.nombre}" del inventario? Esta acción no se puede deshacer. Los pedidos ya registrados con esta especie no se ven afectados.`
+    );
+    if (!confirmado) return;
+
+    await deleteDoc(doc(db, "especies", especie.id));
+    await addDoc(collection(db, "auditoria"), {
+      tipo: "especie_eliminada",
+      descripcion: `Especie eliminada — ${especie.nombre}`,
+      usuarioNombre: usuario?.nombre ?? "Personal",
+      fecha: serverTimestamp(),
+    });
+  }
+
   return (
     <div>
       <div className="panel-head">
@@ -178,6 +193,7 @@ export default function Inventario() {
               <th>Disponible</th>
               <th>Ajustar kilos</th>
               <th>Visible</th>
+              {usuario?.rol === "admin" && <th></th>}
             </tr>
           </thead>
           <tbody>
@@ -263,6 +279,13 @@ export default function Inventario() {
                     <span className="knob" />
                   </label>
                 </td>
+                {usuario?.rol === "admin" && (
+                  <td>
+                    <button className="icon-btn" title="Eliminar especie" onClick={() => eliminarEspecie(e)}>
+                      <Icon name="xcircle" size={15} />
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

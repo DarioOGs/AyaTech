@@ -9,7 +9,7 @@ type Filtro = "todas" | "ventas" | "inventario" | "clientes";
 const GRUPOS: Record<Filtro, TipoAuditoria[] | null> = {
   todas: null,
   ventas: ["venta", "cancelacion"],
-  inventario: ["adicion_kg", "reduccion_kg", "nueva_especie", "cambio_precio", "config"],
+  inventario: ["adicion_kg", "reduccion_kg", "nueva_especie", "especie_eliminada", "cambio_precio", "config"],
   clientes: ["bloqueo", "desbloqueo"],
 };
 
@@ -19,6 +19,7 @@ const ICONO_TIPO: Record<TipoAuditoria, { icon: IconName; clase: string }> = {
   adicion_kg: { icon: "plus", clase: "water" },
   reduccion_kg: { icon: "minus", clase: "amber" },
   nueva_especie: { icon: "box", clase: "water" },
+  especie_eliminada: { icon: "xcircle", clase: "danger" },
   cambio_precio: { icon: "tag", clase: "amber" },
   bloqueo: { icon: "ban", clase: "danger" },
   desbloqueo: { icon: "check", clase: "leaf" },
