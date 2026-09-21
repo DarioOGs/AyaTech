@@ -64,7 +64,7 @@ Este paso se hace **una sola vez**, manualmente:
 5. Recarga la app y vuelve a entrar a `/#admin`: ya debería mostrar el panel completo.
 
 Para dar de alta a un vendedor, el administrador repite el mismo procedimiento pero con
-`rol: vendedor` — esos usuarios no ven Clientes bloqueados, Reportes ni Gastos.
+`rol: vendedor` — esos usuarios no ven Clientes bloqueados, Reportes, Gastos ni Configuración.
 
 ## 4. Cargar las primeras especies
 
@@ -113,6 +113,43 @@ se confirma o cancela el suyo), sigue las instrucciones de
 [`notificaciones/README.md`](notificaciones/README.md) — toma un par de minutos, es gratis y no
 requiere tarjeta. Mientras no lo configures, la app funciona exactamente igual, solo que sin
 enviar esos correos.
+
+## 8. Costo de domicilio editable
+
+En **Panel interno → Configuración** (solo administrador), se puede cambiar el valor del
+domicilio sin tocar el código ni volver a publicar la app — el catálogo del cliente lo toma en
+tiempo real la próxima vez que alguien haga un pedido.
+
+## 9. Protección contra pedidos falsos (App Check)
+
+Como el formulario de pedido no pide cuenta (a propósito, para no incomodar al cliente),
+técnicamente cualquiera podría escribir un script que mande miles de pedidos falsos y agote la
+cuota gratuita de Firebase. **Firebase App Check** evita esto: hace que cada pedido lleve una
+"firma" invisible que prueba que viene de verdad desde tu página web (usando reCAPTCHA v3, que no
+le muestra ningún acertijo al cliente, trabaja en segundo plano) y no de un script.
+
+Es completamente opcional y gratis. Mientras no lo actives, la app funciona exactamente igual.
+
+**Para activarlo:**
+
+1. Firebase Console → **Build → App Check** → "Apps" → selecciona tu app web → proveedor
+   **reCAPTCHA v3** → Firebase te genera automáticamente una clave de sitio.
+2. Copia esa clave a tu `.env`:
+   ```
+   VITE_RECAPTCHA_SITE_KEY=6Lc...
+   ```
+3. Vuelve a compilar y desplegar (`npm run build && firebase deploy`).
+4. **No actives todavía el modo "Enforced" (aplicar) en Firestore.** Déjalo en modo
+   "Unenforced/Monitor" unos días para confirmar en las métricas de App Check que las peticiones
+   reales de tus clientes están pasando bien.
+5. Cuando lo confirmes, en Firebase Console → App Check → pestaña "APIs" → Cloud Firestore →
+   cambia a **"Enforced"**. A partir de ahí, cualquier petición que no traiga la firma válida de
+   App Check queda bloqueada automáticamente.
+
+Si pruebas en tu computador (`npm run dev`), la primera vez la consola del navegador te va a
+mostrar un "token de depuración" — regístralo una sola vez en Firebase Console → App Check →
+pestaña "Apps" → los tres puntos de tu app → "Administrar tokens de depuración", así puedes
+seguir probando en `localhost` sin que App Check te bloquee a ti mismo.
 
 ## Estructura del proyecto
 

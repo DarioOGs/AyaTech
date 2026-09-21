@@ -45,8 +45,10 @@ export type TipoAuditoria =
   | "adicion_kg"
   | "reduccion_kg"
   | "nueva_especie"
+  | "cambio_precio"
   | "bloqueo"
-  | "desbloqueo";
+  | "desbloqueo"
+  | "config";
 
 export interface EntradaAuditoria {
   id: string;
@@ -71,4 +73,8 @@ export interface ClienteBloqueado {
   activo: boolean;
   fechaBloqueo: Timestamp | null;
   bloqueadoPorNombre: string;
+}
+
+export interface Configuracion {
+  costoDomicilio: number;
 }

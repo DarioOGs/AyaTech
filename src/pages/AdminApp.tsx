@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ClientesBloqueados from "../components/admin/ClientesBloqueados";
+import Configuracion from "../components/admin/Configuracion";
 import Gastos from "../components/admin/Gastos";
 import Historial from "../components/admin/Historial";
 import Inventario from "../components/admin/Inventario";
@@ -39,7 +40,8 @@ export default function AdminApp() {
   }
 
   // A partir de aquí, "usuario" siempre existe (viene de /usuarios/{uid}).
-  const seccionValida = usuario!.rol === "admin" || !["bloqueados", "reportes", "gastos"].includes(seccion);
+  const seccionValida =
+    usuario!.rol === "admin" || !["bloqueados", "reportes", "gastos", "configuracion"].includes(seccion);
   const seccionActual = seccionValida ? seccion : "panel";
 
   return (
@@ -53,6 +55,7 @@ export default function AdminApp() {
         {seccionActual === "bloqueados" && <ClientesBloqueados />}
         {seccionActual === "reportes" && <Reportes />}
         {seccionActual === "gastos" && <Gastos />}
+        {seccionActual === "configuracion" && <Configuracion />}
       </div>
     </div>
   );

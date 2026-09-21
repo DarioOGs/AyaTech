@@ -1,12 +1,12 @@
 import { addDoc, collection, doc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useState } from "react";
 import { db } from "../../firebase/config";
+import { useConfiguracion } from "../../hooks/useConfiguracion";
 import type { Especie, Pedido } from "../../types";
 import { folioDe, money } from "../../utils/format";
 import { notificarNuevoPedido } from "../../utils/notificaciones";
 import Icon from "../Icon";
 
-const COSTO_DOMICILIO = 5000;
 const SOLO_LETRAS = /[^A-Za-zÀ-ÿñÑ\s]/g;
 
 export default function FormularioPedido({
@@ -27,9 +27,10 @@ export default function FormularioPedido({
   const [correo, setCorreo] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
+  const { config: configuracion } = useConfiguracion();
 
   const subtotal = kilos * especie.precioPorKilo;
-  const costoDomicilio = domicilio ? COSTO_DOMICILIO : 0;
+  const costoDomicilio = domicilio ? configuracion.costoDomicilio : 0;
   const total = subtotal + costoDomicilio;
 
   function cambiarKg(delta: number) {
@@ -126,7 +127,7 @@ export default function FormularioPedido({
       <div className="toggle-row">
         <div>
           <div style={{ fontWeight: 600, fontSize: ".87rem" }}>¿Domicilio?</div>
-          <div className="hint">Costo fijo dentro de Ayapel (casco urbano)</div>
+          <div className="hint">Costo: {money(configuracion.costoDomicilio)} dentro de Ayapel (casco urbano)</div>
         </div>
         <label className="switch">
           <input type="checkbox" checked={domicilio} onChange={(e) => setDomicilio(e.target.checked)} />

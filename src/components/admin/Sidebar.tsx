@@ -8,7 +8,8 @@ export type Seccion =
   | "historial"
   | "bloqueados"
   | "reportes"
-  | "gastos";
+  | "gastos"
+  | "configuracion";
 
 const ITEMS: { seccion: Seccion; label: string; icon: IconName; soloAdmin?: boolean }[] = [
   { seccion: "panel", label: "Panel", icon: "grid" },
@@ -18,6 +19,7 @@ const ITEMS: { seccion: Seccion; label: string; icon: IconName; soloAdmin?: bool
   { seccion: "bloqueados", label: "Clientes bloqueados", icon: "ban", soloAdmin: true },
   { seccion: "reportes", label: "Reportes", icon: "bars", soloAdmin: true },
   { seccion: "gastos", label: "Gastos", icon: "wallet", soloAdmin: true },
+  { seccion: "configuracion", label: "Configuración", icon: "gear", soloAdmin: true },
 ];
 
 export default function Sidebar({
@@ -48,8 +50,8 @@ export default function Sidebar({
 
       {!esAdmin && ocultos > 0 && (
         <p className="caption-note" style={{ marginTop: 10 }}>
-          Tu rol de vendedor no ve Clientes bloqueados, Reportes ni Gastos: eso queda reservado al
-          administrador.
+          Tu rol de vendedor no ve Clientes bloqueados, Reportes, Gastos ni Configuración: eso
+          queda reservado al administrador.
         </p>
       )}
 

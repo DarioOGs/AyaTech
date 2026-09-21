@@ -13,8 +13,10 @@ const ICONO_TIPO: Record<string, { icon: IconName; clase: string }> = {
   adicion_kg: { icon: "plus", clase: "water" },
   reduccion_kg: { icon: "minus", clase: "amber" },
   nueva_especie: { icon: "box", clase: "water" },
+  cambio_precio: { icon: "tag", clase: "amber" },
   bloqueo: { icon: "ban", clase: "danger" },
   desbloqueo: { icon: "check", clase: "leaf" },
+  config: { icon: "gear", clase: "water" },
 };
 
 export default function PanelDashboard() {

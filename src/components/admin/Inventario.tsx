@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase/config";
 import { useEspecies } from "../../hooks/useEspecies";
-import EspecieThumb from "../EspecieThumb";
+import type { Especie } from "../../types";
 import { colorDeEspecie } from "../../utils/colors";
 import { kg, money } from "../../utils/format";
+import EspecieThumb from "../EspecieThumb";
 import Icon from "../Icon";
 
 const CLOUDINARY_URL = "https://cloudinary.com/console/media_library";
@@ -32,6 +33,8 @@ export default function Inventario() {
   const [guardando, setGuardando] = useState(false);
   const [fotoAbierta, setFotoAbierta] = useState<string | null>(null);
   const [fotoValor, setFotoValor] = useState("");
+  const [precioAbierto, setPrecioAbierto] = useState<string | null>(null);
+  const [precioValor, setPrecioValor] = useState("");
 
   async function aplicarAjuste(especieId: string, especieNombre: string, actual: number, signo: 1 | -1) {
     const valor = parseFloat(ajustes[especieId] ?? "");
@@ -86,6 +89,36 @@ export default function Inventario() {
   async function guardarFoto(especieId: string) {
     await updateDoc(doc(db, "especies", especieId), { imagenUrl: fotoValor.trim() });
     setFotoAbierta(null);
+  }
+
+  function abrirPrecio(especieId: string, actual: number) {
+    setPrecioAbierto(especieId);
+    setPrecioValor(String(actual));
+  }
+
+  async function guardarPrecio(especieId: string, especieNombre: string, anterior: number) {
+    const nuevo = parseFloat(precioValor);
+    if (!nuevo || nuevo <= 0) return;
+
+    await updateDoc(doc(db, "especies", especieId), { precioPorKilo: nuevo });
+    await addDoc(collection(db, "auditoria"), {
+      tipo: "cambio_precio",
+      descripcion: `Precio actualizado — ${especieNombre}: ${money(anterior)} → ${money(nuevo)} por kg`,
+      usuarioNombre: usuario?.nombre ?? "Personal",
+      fecha: serverTimestamp(),
+    });
+    setPrecioAbierto(null);
+  }
+
+  async function alternarVisible(especie: Especie) {
+    const nuevoValor = !especie.activo;
+    await updateDoc(doc(db, "especies", especie.id), { activo: nuevoValor });
+    await addDoc(collection(db, "auditoria"), {
+      tipo: "config",
+      descripcion: `${especie.nombre} ${nuevoValor ? "vuelve a mostrarse" : "se ocultó"} del catálogo`,
+      usuarioNombre: usuario?.nombre ?? "Personal",
+      fecha: serverTimestamp(),
+    });
   }
 
   return (
@@ -144,14 +177,20 @@ export default function Inventario() {
               <th>Precio / kg</th>
               <th>Disponible</th>
               <th>Ajustar kilos</th>
+              <th>Visible</th>
             </tr>
           </thead>
           <tbody>
             {especies.map((e) => (
-              <tr key={e.id} className={e.kilosDisponibles <= 0 ? "row-muted" : ""}>
+              <tr key={e.id} className={e.kilosDisponibles <= 0 || !e.activo ? "row-muted" : ""}>
                 <td className="cell-species" style={{ ["--fish-color" as string]: colorDeEspecie(e.nombre) }}>
                   <EspecieThumb nombre={e.nombre} imagenUrl={e.imagenUrl} />
                   {e.nombre}
+                  {!e.activo && (
+                    <span className="chip chip-neutral" style={{ marginLeft: 8 }}>
+                      Oculta
+                    </span>
+                  )}
                 </td>
                 <td>
                   <button className="btn btn-outline btn-sm" onClick={() => abrirFoto(e.id, e.imagenUrl)}>
@@ -175,7 +214,30 @@ export default function Inventario() {
                     </div>
                   )}
                 </td>
-                <td className="num">{money(e.precioPorKilo)}</td>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span className="num">{money(e.precioPorKilo)}</span>
+                    <button className="icon-btn" title="Editar precio" onClick={() => abrirPrecio(e.id, e.precioPorKilo)}>
+                      <Icon name="tag" size={14} />
+                    </button>
+                  </div>
+                  {precioAbierto === e.id && (
+                    <div className="inline-form" style={{ marginTop: 8, gridTemplateColumns: "1fr" }}>
+                      <div className="field">
+                        <label>Nuevo precio por kilo</label>
+                        <input type="number" min="0" value={precioValor} onChange={(ev) => setPrecioValor(ev.target.value)} />
+                      </div>
+                      <div className="full">
+                        <button className="btn btn-outline btn-sm" onClick={() => setPrecioAbierto(null)}>
+                          Cancelar
+                        </button>
+                        <button className="btn btn-primary btn-sm" onClick={() => guardarPrecio(e.id, e.nombre, e.precioPorKilo)}>
+                          Guardar precio
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </td>
                 <td className="num">{kg(e.kilosDisponibles)}</td>
                 <td>
                   <div className="inv-controls">
@@ -194,6 +256,13 @@ export default function Inventario() {
                     </button>
                   </div>
                 </td>
+                <td>
+                  <label className="switch" title={e.activo ? "Visible en el catálogo" : "Oculta del catálogo"}>
+                    <input type="checkbox" checked={e.activo} onChange={() => alternarVisible(e)} />
+                    <span className="track" />
+                    <span className="knob" />
+                  </label>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -201,7 +270,8 @@ export default function Inventario() {
       </div>
       <p className="caption-note">
         Cada ajuste queda anotado en el Historial con la hora, quién lo hizo y cuánto cambió —
-        nada se ajusta en silencio.
+        nada se ajusta en silencio. Ocultar una especie no borra sus kilos ni su precio, solo la
+        quita del catálogo mientras la vuelves a activar.
       </p>
     </div>
   );

@@ -65,5 +65,13 @@ service cloud.firestore {
       allow read: if esStaff();
       allow write: if esAdmin();
     }
+
+    // Ajustes generales de la tienda (ej. costo de domicilio): lectura
+    // pública porque el formulario de pedido los necesita sin login,
+    // pero solo un admin los puede cambiar.
+    match /configuracion/{docId} {
+      allow read: if true;
+      allow write: if esAdmin();
+    }
   }
 }
