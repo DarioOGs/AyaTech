@@ -43,6 +43,7 @@ export default function FormularioPedido({
   }
 
   async function confirmar() {
+    if (enviando) return;
     setError("");
     if (!kilos || kilos <= 0) return setError("Escribe cuántos kilos deseas.");
     if (!nombre.trim() || nombre.trim().length < 3) return setError("Escribe tu nombre completo.");

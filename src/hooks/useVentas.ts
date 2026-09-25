@@ -6,6 +6,7 @@ import type { Venta } from "../types";
 export function useVentas() {
   const [ventas, setVentas] = useState<Venta[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [intento, setIntento] = useState(0);
 
   useEffect(() => {
     const q = query(collection(db, "ventas"), orderBy("fecha", "desc"));
@@ -18,10 +19,11 @@ export function useVentas() {
       (err) => {
         console.error("Error leyendo ventas:", err);
         setCargando(false);
+        setTimeout(() => setIntento((n) => n + 1), 4000);
       }
     );
     return unsub;
-  }, []);
+  }, [intento]);
 
   return { ventas, cargando };
 }

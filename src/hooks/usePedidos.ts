@@ -7,6 +7,7 @@ export function usePedidos(estado?: EstadoPedido) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [intento, setIntento] = useState(0);
 
   useEffect(() => {
     const base = collection(db, "pedidos");
@@ -23,12 +24,13 @@ export function usePedidos(estado?: EstadoPedido) {
       },
       (err) => {
         console.error("Error leyendo pedidos:", err);
-        setError("No se pudieron cargar los pedidos.");
+        setError("No se pudieron cargar los pedidos. Reintentando...");
         setCargando(false);
+        setTimeout(() => setIntento((n) => n + 1), 4000);
       }
     );
     return unsub;
-  }, [estado]);
+  }, [estado, intento]);
 
   return { pedidos, cargando, error };
 }

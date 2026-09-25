@@ -11,8 +11,8 @@ function porFechaDesc<T extends { fechaActualizacion: { toMillis: () => number }
 }
 
 export default function EntregasPendientes() {
-  const { pedidos: confirmados, cargando } = usePedidos("confirmado");
-  const { pedidos: cancelados } = usePedidos("cancelado");
+  const { pedidos: confirmados, cargando, error: errorConfirmados } = usePedidos("confirmado");
+  const { pedidos: cancelados, error: errorCancelados } = usePedidos("cancelado");
   const { usuario } = useAuth();
   const [verCanceladas, setVerCanceladas] = useState(false);
   const [procesando, setProcesando] = useState<string | null>(null);
@@ -28,6 +28,7 @@ export default function EntregasPendientes() {
   const totalKilos = pendientes.reduce((s, p) => s + p.kilosSolicitados, 0);
 
   async function marcarEntregado(pedidoId: string, especieNombre: string, kilos: number) {
+    if (procesando) return;
     const confirmado = window.confirm(
       "¿Ya se le entregó este pedido al cliente? Se elimina de esta lista para no acumular datos de contacto. Las cifras de la venta ya quedaron guardadas en Reportes."
     );
@@ -68,6 +69,7 @@ export default function EntregasPendientes() {
         </button>
       </div>
 
+      {(errorConfirmados || errorCancelados) && <p className="field error">{errorConfirmados || errorCancelados}</p>}
       {cargando && <p className="caption-note">Cargando...</p>}
       {!cargando && pendientes.length === 0 && <p className="caption-note">No hay entregas pendientes por ahora.</p>}
 

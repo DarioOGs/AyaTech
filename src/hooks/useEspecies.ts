@@ -7,6 +7,7 @@ export function useEspecies(soloActivas: boolean) {
   const [especies, setEspecies] = useState<Especie[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [intento, setIntento] = useState(0);
 
   useEffect(() => {
     const base = collection(db, "especies");
@@ -26,13 +27,14 @@ export function useEspecies(soloActivas: boolean) {
         setError(
           err.code === "permission-denied"
             ? "No se pudo leer el catálogo: revisa que las reglas de Firestore ya estén publicadas."
-            : "No se pudo cargar el catálogo. Revisa tu conexión."
+            : "No se pudo cargar el catálogo. Reintentando..."
         );
         setCargando(false);
+        setTimeout(() => setIntento((n) => n + 1), 4000);
       }
     );
     return unsub;
-  }, [soloActivas]);
+  }, [soloActivas, intento]);
 
   return { especies, cargando, error };
 }

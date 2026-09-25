@@ -8,7 +8,7 @@ import { folioDe, kg, money } from "../../utils/format";
 import { notificarResultadoPedido } from "../../utils/notificaciones";
 
 export default function Pedidos() {
-  const { pedidos, cargando } = usePedidos("pendiente");
+  const { pedidos, cargando, error: errorCarga } = usePedidos("pendiente");
   const { usuario } = useAuth();
   const [procesando, setProcesando] = useState<string | null>(null);
   const [procesados, setProcesados] = useState<Set<string>>(new Set());
@@ -23,6 +23,7 @@ export default function Pedidos() {
   }
 
   async function confirmar(pedido: Pedido) {
+    if (procesando) return;
     setProcesando(pedido.id);
     setErrores((e) => ({ ...e, [pedido.id]: "" }));
     try {
@@ -81,6 +82,7 @@ export default function Pedidos() {
   }
 
   async function cancelar(pedido: Pedido) {
+    if (procesando) return;
     const motivo = window.prompt("¿Por qué se cancela este pedido? (opcional)") ?? "";
     setProcesando(pedido.id);
     setErrores((e) => ({ ...e, [pedido.id]: "" }));
@@ -131,6 +133,7 @@ export default function Pedidos() {
         Confirma un pedido para convertirlo en venta, o cancélalo si el cliente no se presenta.
       </div>
 
+      {errorCarga && <p className="field error">{errorCarga}</p>}
       {cargando && <p className="caption-note">Cargando pedidos...</p>}
       {!cargando && visibles.length === 0 && (
         <p className="caption-note">No hay pedidos pendientes por ahora.</p>

@@ -6,6 +6,7 @@ import type { EntradaAuditoria } from "../types";
 export function useAuditoria(cantidad = 80) {
   const [entradas, setEntradas] = useState<EntradaAuditoria[]>([]);
   const [cargando, setCargando] = useState(true);
+  const [intento, setIntento] = useState(0);
 
   useEffect(() => {
     const q = query(collection(db, "auditoria"), orderBy("fecha", "desc"), limit(cantidad));
@@ -18,10 +19,11 @@ export function useAuditoria(cantidad = 80) {
       (err) => {
         console.error("Error leyendo auditoría:", err);
         setCargando(false);
+        setTimeout(() => setIntento((n) => n + 1), 4000);
       }
     );
     return unsub;
-  }, [cantidad]);
+  }, [cantidad, intento]);
 
   return { entradas, cargando };
 }

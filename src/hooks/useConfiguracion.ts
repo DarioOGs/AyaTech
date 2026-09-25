@@ -8,6 +8,7 @@ const VALORES_POR_DEFECTO: Configuracion = { costoDomicilio: 5000 };
 export function useConfiguracion() {
   const [config, setConfig] = useState<Configuracion>(VALORES_POR_DEFECTO);
   const [cargando, setCargando] = useState(true);
+  const [intento, setIntento] = useState(0);
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -16,10 +17,14 @@ export function useConfiguracion() {
         setConfig(snap.exists() ? { ...VALORES_POR_DEFECTO, ...(snap.data() as Configuracion) } : VALORES_POR_DEFECTO);
         setCargando(false);
       },
-      () => setCargando(false)
+      (err) => {
+        console.error("Error leyendo configuración:", err);
+        setCargando(false);
+        setTimeout(() => setIntento((n) => n + 1), 4000);
+      }
     );
     return unsub;
-  }, []);
+  }, [intento]);
 
   return { config, cargando };
 }
