@@ -132,7 +132,7 @@ src/
 ├── types/                    # tipos de datos (Especie, Pedido, Gasto, ...)
 ├── components/
 │   ├── cliente/               # Catálogo, Formulario de pedido, Confirmación
-│   └── admin/                 # Panel, Inventario, Pedidos, Historial de ventas, Bloqueados, Reportes, Gastos
+│   └── admin/                 # Panel, Inventario, Pedidos, Entregas pendientes, Bloqueados, Reportes
 └── pages/                    # ClienteApp.tsx y AdminApp.tsx (unen las piezas de arriba)
 ```
 

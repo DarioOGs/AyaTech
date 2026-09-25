@@ -1078,22 +1078,6 @@ tr:last-child td {
   margin-bottom: 8px;
 }
 
-.expense-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 16px;
-  margin-bottom: 16px;
-}
-.expense-total .val {
-  font-family: "Fraunces", serif;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
 .caption-note {
   font-size: 0.74rem;
   color: var(--ink-faint);

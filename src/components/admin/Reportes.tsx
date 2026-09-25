@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { useGastos } from "../../hooks/useGastos";
-import { usePedidos } from "../../hooks/usePedidos";
+import { useVentas } from "../../hooks/useVentas";
 import { haceNDias, inicioDelDia, inicioDelMes, inicioDeSemana } from "../../utils/dates";
 import { kg, money } from "../../utils/format";
 import { colorDeEspecie } from "../../utils/colors";
@@ -27,8 +26,7 @@ const TITULOS: Record<Rango, string> = {
 };
 
 export default function Reportes() {
-  const { pedidos } = usePedidos("confirmado");
-  const { gastos } = useGastos();
+  const { ventas } = useVentas();
   const { usuario } = useAuth();
   const [rango, setRango] = useState<Rango>("semana");
   const [copiado, setCopiado] = useState(false);
@@ -40,26 +38,23 @@ export default function Reportes() {
     return haceNDias(3650);
   }, [rango]);
 
-  const ventasFiltradas = pedidos.filter((p) => p.fechaActualizacion && p.fechaActualizacion.toDate() >= desde);
-  const gastosFiltrados = gastos.filter((g) => g.fecha && g.fecha.toDate() >= desde);
+  const ventasFiltradas = ventas.filter((v) => v.fecha && v.fecha.toDate() >= desde);
 
-  const totalVentas = ventasFiltradas.reduce((s, p) => s + p.valorTotal, 0);
-  const totalGastos = gastosFiltrados.reduce((s, g) => s + g.valor, 0);
-  const totalKilos = ventasFiltradas.reduce((s, p) => s + p.kilosSolicitados, 0);
-  const gananciaNeta = totalVentas - totalGastos;
+  const totalVentas = ventasFiltradas.reduce((s, v) => s + v.valorTotal, 0);
+  const totalKilos = ventasFiltradas.reduce((s, v) => s + v.kilos, 0);
 
   const porEspecie = useMemo(() => {
     const mapa = new Map<string, { kilos: number; ingresos: number }>();
-    for (const p of ventasFiltradas) {
-      const actual = mapa.get(p.especieNombre) ?? { kilos: 0, ingresos: 0 };
-      actual.kilos += p.kilosSolicitados;
-      actual.ingresos += p.valorTotal;
-      mapa.set(p.especieNombre, actual);
+    for (const v of ventasFiltradas) {
+      const actual = mapa.get(v.especieNombre) ?? { kilos: 0, ingresos: 0 };
+      actual.kilos += v.kilos;
+      actual.ingresos += v.valorTotal;
+      mapa.set(v.especieNombre, actual);
     }
     return Array.from(mapa.entries());
   }, [ventasFiltradas]);
 
-  const datosReporte = { periodo: ETIQUETAS[rango], ventas: totalVentas, gastos: totalGastos, kilos: totalKilos };
+  const datosReporte = { periodo: ETIQUETAS[rango], ventas: totalVentas, kilos: totalKilos };
 
   function copiarReporte() {
     navigator.clipboard.writeText(textoReporte(datosReporte)).then(() => {
@@ -73,7 +68,6 @@ export default function Reportes() {
       periodoTitulo: TITULOS[rango],
       generadoPor: usuario?.nombre ?? "Personal de la finca",
       ventas: totalVentas,
-      gastos: totalGastos,
       kilos: totalKilos,
       porEspecie,
     });
@@ -82,7 +76,7 @@ export default function Reportes() {
   return (
     <div>
       <h2>Reportes</h2>
-      <div className="panel-sub">Ventas, ganancias y gastos listos para revisar o enviar por WhatsApp.</div>
+      <div className="panel-sub">Cuánto se vendió por especie y en total, listo para revisar o enviar por WhatsApp.</div>
 
       <div className="chip-row">
         {(["hoy", "semana", "mes", "todo"] as Rango[]).map((r) => (
@@ -96,17 +90,9 @@ export default function Reportes() {
         <div>
           <div className="stat-grid" style={{ gridTemplateColumns: "repeat(2,1fr)", marginBottom: 16 }}>
             <div className="stat-tile">
-              <div className="lbl">Ventas totales</div>
-              <div className="val num">{money(totalVentas)}</div>
-            </div>
-            <div className="stat-tile">
-              <div className="lbl">Gastos</div>
-              <div className="val num">{money(totalGastos)}</div>
-            </div>
-            <div className="stat-tile">
-              <div className="lbl">Ganancia neta</div>
+              <div className="lbl">Total vendido</div>
               <div className="val num" style={{ color: "var(--leaf)" }}>
-                {money(gananciaNeta)}
+                {money(totalVentas)}
               </div>
             </div>
             <div className="stat-tile">

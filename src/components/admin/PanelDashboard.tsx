@@ -1,18 +1,20 @@
 import { useMemo } from "react";
 import { useAuditoria } from "../../hooks/useAuditoria";
 import { useEspecies } from "../../hooks/useEspecies";
-import { useGastos } from "../../hooks/useGastos";
 import { usePedidos } from "../../hooks/usePedidos";
+import { useVentas } from "../../hooks/useVentas";
 import { inicioDelDia, inicioDelMes } from "../../utils/dates";
 import { kg, money, tiempoRelativo } from "../../utils/format";
 import Icon, { type IconName } from "../Icon";
 
 const ICONO_TIPO: Record<string, { icon: IconName; clase: string }> = {
   venta: { icon: "checkcircle", clase: "leaf" },
+  entrega: { icon: "box", clase: "leaf" },
   cancelacion: { icon: "xcircle", clase: "danger" },
   adicion_kg: { icon: "plus", clase: "water" },
   reduccion_kg: { icon: "minus", clase: "amber" },
   nueva_especie: { icon: "box", clase: "water" },
+  especie_eliminada: { icon: "xcircle", clase: "danger" },
   cambio_precio: { icon: "tag", clase: "amber" },
   bloqueo: { icon: "ban", clase: "danger" },
   desbloqueo: { icon: "check", clase: "leaf" },
@@ -21,45 +23,27 @@ const ICONO_TIPO: Record<string, { icon: IconName; clase: string }> = {
 
 export default function PanelDashboard() {
   const { especies } = useEspecies(true);
-  const { pedidos } = usePedidos();
-  const { gastos } = useGastos();
+  const { pedidos } = usePedidos("pendiente");
+  const { ventas } = useVentas();
   const { entradas } = useAuditoria(6);
 
   const kilosDisponibles = useMemo(
     () => especies.reduce((sum, e) => sum + e.kilosDisponibles, 0),
     [especies]
   );
-  const pendientes = useMemo(() => pedidos.filter((p) => p.estado === "pendiente"), [pedidos]);
-  const confirmados = useMemo(() => pedidos.filter((p) => p.estado === "confirmado"), [pedidos]);
 
   const hoy = inicioDelDia();
   const inicioMes = inicioDelMes();
 
   const ventasHoy = useMemo(
-    () =>
-      confirmados
-        .filter((p) => p.fechaActualizacion && p.fechaActualizacion.toDate() >= hoy)
-        .reduce((s, p) => s + p.valorTotal, 0),
-    [confirmados]
+    () => ventas.filter((v) => v.fecha && v.fecha.toDate() >= hoy).reduce((s, v) => s + v.valorTotal, 0),
+    [ventas]
   );
 
   const ventasMes = useMemo(
-    () =>
-      confirmados
-        .filter((p) => p.fechaActualizacion && p.fechaActualizacion.toDate() >= inicioMes)
-        .reduce((s, p) => s + p.valorTotal, 0),
-    [confirmados]
+    () => ventas.filter((v) => v.fecha && v.fecha.toDate() >= inicioMes).reduce((s, v) => s + v.valorTotal, 0),
+    [ventas]
   );
-
-  const gastosMes = useMemo(
-    () =>
-      gastos
-        .filter((g) => g.fecha && g.fecha.toDate() >= inicioMes)
-        .reduce((s, g) => s + g.valor, 0),
-    [gastos]
-  );
-
-  const gananciaNeta = ventasMes - gastosMes;
 
   const datosGrafico = useMemo(() => {
     const dias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
@@ -70,17 +54,17 @@ export default function PanelDashboard() {
       const inicio = inicioDelDia(d);
       const fin = new Date(inicio);
       fin.setDate(fin.getDate() + 1);
-      const total = confirmados
-        .filter((p) => p.fechaActualizacion)
-        .filter((p) => {
-          const t = p.fechaActualizacion!.toDate();
+      const total = ventas
+        .filter((v) => v.fecha)
+        .filter((v) => {
+          const t = v.fecha!.toDate();
           return t >= inicio && t < fin;
         })
-        .reduce((s, p) => s + p.valorTotal, 0);
+        .reduce((s, v) => s + v.valorTotal, 0);
       arr.push({ etiqueta: i === 0 ? "Hoy" : dias[d.getDay()], valor: total });
     }
     return arr;
-  }, [confirmados]);
+  }, [ventas]);
 
   const max = Math.max(1, ...datosGrafico.map((d) => d.valor));
 
@@ -109,7 +93,7 @@ export default function PanelDashboard() {
             <Icon name="list" size={16} />
           </div>
           <div className="lbl">Pedidos pendientes</div>
-          <div className="val num">{pendientes.length}</div>
+          <div className="val num">{pedidos.length}</div>
           <div className="delta">esperan confirmación</div>
         </div>
         <div className="stat-tile">
@@ -124,9 +108,9 @@ export default function PanelDashboard() {
           <div className="icon-badge clay">
             <Icon name="wallet" size={16} />
           </div>
-          <div className="lbl">Ganancia neta del mes</div>
-          <div className="val num">{money(gananciaNeta)}</div>
-          <div className="delta">ventas − gastos del mes</div>
+          <div className="lbl">Ventas del mes</div>
+          <div className="val num">{money(ventasMes)}</div>
+          <div className="delta">total vendido este mes</div>
         </div>
       </div>
 

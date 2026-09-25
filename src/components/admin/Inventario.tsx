@@ -290,7 +290,7 @@ export default function Inventario() {
         </table>
       </div>
       <p className="caption-note">
-        Cada ajuste queda anotado en el Historial con la hora, quién lo hizo y cuánto cambió —
+        Cada ajuste queda anotado en Panel → Actividad reciente, con la hora y quién lo hizo —
         nada se ajusta en silencio. Ocultar una especie no borra sus kilos ni su precio, solo la
         quita del catálogo mientras la vuelves a activar.
       </p>

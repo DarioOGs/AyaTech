@@ -6,14 +6,12 @@ interface DatosReportePdf {
   periodoTitulo: string;
   generadoPor: string;
   ventas: number;
-  gastos: number;
   kilos: number;
   porEspecie: [string, { kilos: number; ingresos: number }][];
 }
 
 export function descargarReportePdf(datos: DatosReportePdf) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
-  const ganancia = datos.ventas - datos.gastos;
   const ahora = new Date();
 
   doc.setFillColor(11, 79, 92);
@@ -24,7 +22,7 @@ export function descargarReportePdf(datos: DatosReportePdf) {
   doc.text("Finca Nueva Vida el Deseo", 14, 14);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
-  doc.text(`Reporte de ventas y gastos — ${datos.periodoTitulo}`, 14, 22);
+  doc.text(`Reporte de ventas — ${datos.periodoTitulo}`, 14, 22);
 
   doc.setTextColor(90, 90, 90);
   doc.setFontSize(9);
@@ -40,9 +38,7 @@ export function descargarReportePdf(datos: DatosReportePdf) {
     theme: "plain",
     styles: { fontSize: 11, cellPadding: 2 },
     body: [
-      ["Ventas totales", money(datos.ventas)],
-      ["Gastos", money(datos.gastos)],
-      ["Ganancia neta", money(ganancia)],
+      ["Total vendido", money(datos.ventas)],
       ["Kilos vendidos", kg(datos.kilos)],
     ],
     columnStyles: {

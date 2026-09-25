@@ -38,6 +38,7 @@ export interface Pedido {
 
 export type TipoAuditoria =
   | "venta"
+  | "entrega"
   | "cancelacion"
   | "adicion_kg"
   | "reduccion_kg"
@@ -56,12 +57,14 @@ export interface EntradaAuditoria {
   fecha: Timestamp | null;
 }
 
-export interface Gasto {
+export interface Venta {
   id: string;
-  concepto: string;
-  valor: number;
+  especieNombre: string;
+  kilos: number;
+  precioPorKilo: number;
+  valorTotal: number;
+  domicilio: boolean;
   fecha: Timestamp | null;
-  registradoPorNombre: string;
 }
 
 export interface ClienteBloqueado {

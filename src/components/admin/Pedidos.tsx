@@ -52,6 +52,14 @@ export default function Pedidos() {
         usuarioNombre: usuario?.nombre ?? "Personal",
         fecha: serverTimestamp(),
       });
+      await addDoc(collection(db, "ventas"), {
+        especieNombre: pedido.especieNombre,
+        kilos: pedido.kilosSolicitados,
+        precioPorKilo: pedido.precioPorKilo,
+        valorTotal: pedido.valorTotal,
+        domicilio: pedido.domicilio,
+        fecha: serverTimestamp(),
+      });
       notificarResultadoPedido("confirmado", {
         folio: folioDe(pedido.id),
         clienteCorreo: pedido.clienteCorreo,

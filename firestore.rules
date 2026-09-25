@@ -19,8 +19,7 @@ service cloud.firestore {
 
     match /pedidos/{pedidoId} {
       allow create: if true;
-      allow read, update: if esAdmin();
-      allow delete: if false;
+      allow read, update, delete: if esAdmin();
     }
 
     match /auditoria/{entradaId} {
@@ -29,13 +28,14 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    match /ventas/{ventaId} {
+      allow read, create: if esAdmin();
+      allow update, delete: if false;
+    }
+
     match /clientesBloqueados/{cedula} {
       allow read: if true;
       allow write: if esAdmin();
-    }
-
-    match /gastos/{gastoId} {
-      allow read, write: if esAdmin();
     }
 
     match /usuarios/{uid} {

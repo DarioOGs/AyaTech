@@ -5,20 +5,18 @@ export type Seccion =
   | "panel"
   | "inventario"
   | "pedidos"
-  | "historial"
+  | "entregas"
   | "bloqueados"
   | "reportes"
-  | "gastos"
   | "configuracion";
 
 const ITEMS: { seccion: Seccion; label: string; icon: IconName }[] = [
   { seccion: "panel", label: "Panel", icon: "grid" },
   { seccion: "inventario", label: "Inventario", icon: "box" },
   { seccion: "pedidos", label: "Pedidos", icon: "list" },
-  { seccion: "historial", label: "Historial de ventas", icon: "clock" },
+  { seccion: "entregas", label: "Entregas pendientes", icon: "clock" },
   { seccion: "bloqueados", label: "Clientes bloqueados", icon: "ban" },
   { seccion: "reportes", label: "Reportes", icon: "bars" },
-  { seccion: "gastos", label: "Gastos", icon: "wallet" },
   { seccion: "configuracion", label: "Configuración", icon: "gear" },
 ];
 

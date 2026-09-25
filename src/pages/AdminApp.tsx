@@ -1,8 +1,7 @@
 import { useState } from "react";
 import ClientesBloqueados from "../components/admin/ClientesBloqueados";
 import Configuracion from "../components/admin/Configuracion";
-import Gastos from "../components/admin/Gastos";
-import Historial from "../components/admin/Historial";
+import EntregasPendientes from "../components/admin/EntregasPendientes";
 import Inventario from "../components/admin/Inventario";
 import PanelDashboard from "../components/admin/PanelDashboard";
 import Pedidos from "../components/admin/Pedidos";
@@ -46,10 +45,9 @@ export default function AdminApp() {
         {seccion === "panel" && <PanelDashboard />}
         {seccion === "inventario" && <Inventario />}
         {seccion === "pedidos" && <Pedidos />}
-        {seccion === "historial" && <Historial />}
+        {seccion === "entregas" && <EntregasPendientes />}
         {seccion === "bloqueados" && <ClientesBloqueados />}
         {seccion === "reportes" && <Reportes />}
-        {seccion === "gastos" && <Gastos />}
         {seccion === "configuracion" && <Configuracion />}
       </div>
     </div>
