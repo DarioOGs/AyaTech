@@ -34,6 +34,13 @@ export default function Confirmacion({
         envía solo a la finca apenas vuelva la conexión.
       </div>
 
+      {pedido.clienteCorreo.trim() && (
+        <div className="confirm-note" style={{ background: "var(--amber-bg)", borderColor: "transparent", color: "var(--clay-strong)" }}>
+          Te enviamos un aviso a {pedido.clienteCorreo.trim()}. Si no lo ves en un rato, revisa
+          también la carpeta de <strong>Spam o Correo no deseado</strong> — a veces llega ahí.
+        </div>
+      )}
+
       <button className="btn btn-outline" style={{ width: "100%" }} onClick={onNuevoPedido}>
         Hacer otro pedido
       </button>

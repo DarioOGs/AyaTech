@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <circle cx="150" cy="150" r="138" fill="none" stroke="#0B4F5C" stroke-width="3"/>
+  <circle cx="150" cy="150" r="122" fill="none" stroke="#17808E" stroke-width="1.5" stroke-dasharray="1 7" stroke-linecap="round"/>
+  <g fill="none" stroke="#0B4F5C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" transform="translate(76,64)">
+    <path d="M4 34c10-17 31-26 50-26 14 0 25 5 31 15l14-9v40l-14-9c-6 10-17 15-31 15-19 0-40-8-50-26z"/>
+    <circle cx="36" cy="22" r="2.6" fill="#C1652E" stroke="none"/>
+  </g>
+  <text x="150" y="176" text-anchor="middle" font-family="Georgia, 'Iowan Old Style', serif" font-size="27" font-weight="600" fill="#0B4F5C">
+    Nueva Vida
+  </text>
+  <text x="150" y="204" text-anchor="middle" font-family="Georgia, 'Iowan Old Style', serif" font-size="27" font-weight="600" fill="#0B4F5C">
+    el Deseo
+  </text>
+  <text x="150" y="234" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.5" font-weight="700" fill="#17808E" letter-spacing="3">
+    FINCA · ALEVINOS
+  </text>
+</svg>

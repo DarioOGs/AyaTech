@@ -23,12 +23,18 @@ export function notificarNuevoPedido(datos: {
   kilos: number;
   domicilio: boolean;
   total: number;
+  sinStock: boolean;
 }) {
+  const aviso = datos.sinStock
+    ? `⚠ AVISO: no hay suficiente disponibilidad registrada en el inventario para este pedido. ` +
+      `Revisa si puedes conseguir más antes de confirmarlo.\n\n`
+    : "";
   enviar({
     tipo: "nuevo_pedido",
-    asunto: `Nuevo pedido ${datos.folio} — ${datos.especieNombre}`,
+    asunto: `${datos.sinStock ? "(SIN STOCK) " : ""}Nuevo pedido ${datos.folio} — ${datos.especieNombre}`,
     mensaje:
       `Llegó un pedido nuevo por la página:\n\n` +
+      aviso +
       `Folio: ${datos.folio}\n` +
       `Cliente: ${datos.clienteNombre} (${datos.clienteTelefono})\n` +
       `Pedido: ${datos.especieNombre}, ${kg(datos.kilos)}\n` +

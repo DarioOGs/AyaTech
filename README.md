@@ -17,7 +17,8 @@ Práctica Empresarial · Corporación Universitaria Uniremington · Equipo AyaTe
 | Reportes | Enlace `wa.me` con el mensaje ya redactado (sin costo, sin API de pago) |
 
 El cliente que hace un pedido **no necesita cuenta**: se identifica con su cédula en cada
-pedido. Solo el personal (vendedor/administrador) inicia sesión con Google.
+pedido. Solo el administrador de la finca inicia sesión con Google — la plataforma está pensada
+para un único usuario interno.
 
 ## 1. Antes de programar: crear el proyecto en Firebase
 
@@ -60,11 +61,11 @@ Este paso se hace **una sola vez**, manualmente:
    ese mismo UID → agrega los campos:
    - `nombre` (string): el nombre de la persona
    - `email` (string): su correo
-   - `rol` (string): `admin`
 5. Recarga la app y vuelve a entrar a `/#admin`: ya debería mostrar el panel completo.
 
-Para dar de alta a un vendedor, el administrador repite el mismo procedimiento pero con
-`rol: vendedor` — esos usuarios no ven Clientes bloqueados, Reportes, Gastos ni Configuración.
+La plataforma está pensada para un solo administrador. Si necesitas que otra cuenta también
+entre, repite este mismo procedimiento con su UID — tendrá acceso completo al panel, no hay
+roles limitados.
 
 ## 4. Cargar las primeras especies
 
@@ -131,7 +132,7 @@ src/
 ├── types/                    # tipos de datos (Especie, Pedido, Gasto, ...)
 ├── components/
 │   ├── cliente/               # Catálogo, Formulario de pedido, Confirmación
-│   └── admin/                 # Panel, Inventario, Pedidos, Historial, Bloqueados, Reportes, Gastos
+│   └── admin/                 # Panel, Inventario, Pedidos, Historial de ventas, Bloqueados, Reportes, Gastos
 └── pages/                    # ClienteApp.tsx y AdminApp.tsx (unen las piezas de arriba)
 ```
 

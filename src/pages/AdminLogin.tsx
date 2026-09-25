@@ -10,8 +10,7 @@ export default function AdminLogin() {
       </div>
       <h2 style={{ margin: "0 0 6px" }}>Panel interno</h2>
       <p className="caption-note" style={{ marginBottom: 20 }}>
-        Solo el personal de la finca (vendedores y administrador) puede entrar aquí, con su cuenta
-        de Google.
+        Solo el administrador de la finca puede entrar aquí, con su cuenta de Google autorizada.
       </p>
       <button className="btn btn-primary" style={{ width: "100%" }} onClick={iniciarSesion}>
         Iniciar sesión con Google

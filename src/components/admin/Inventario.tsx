@@ -193,7 +193,7 @@ export default function Inventario() {
               <th>Disponible</th>
               <th>Ajustar kilos</th>
               <th>Visible</th>
-              {usuario?.rol === "admin" && <th></th>}
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -279,13 +279,11 @@ export default function Inventario() {
                     <span className="knob" />
                   </label>
                 </td>
-                {usuario?.rol === "admin" && (
-                  <td>
-                    <button className="icon-btn" title="Eliminar especie" onClick={() => eliminarEspecie(e)}>
-                      <Icon name="xcircle" size={15} />
-                    </button>
-                  </td>
-                )}
+                <td>
+                  <button className="icon-btn" title="Eliminar especie" onClick={() => eliminarEspecie(e)}>
+                    <Icon name="xcircle" size={15} />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

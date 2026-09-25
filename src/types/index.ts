@@ -1,11 +1,8 @@
 import type { Timestamp } from "firebase/firestore";
 
-export type Rol = "admin" | "vendedor";
-
 export interface Usuario {
   nombre: string;
   email: string;
-  rol: Rol;
 }
 
 export interface Especie {

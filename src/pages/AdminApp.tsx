@@ -12,7 +12,7 @@ import { useAuth } from "../context/AuthContext";
 import AdminLogin from "./AdminLogin";
 
 export default function AdminApp() {
-  const { firebaseUser, usuario, cargando, sinPermiso, cerrarSesion } = useAuth();
+  const { firebaseUser, cargando, sinPermiso, cerrarSesion } = useAuth();
   const [seccion, setSeccion] = useState<Seccion>("panel");
 
   if (cargando) {
@@ -39,22 +39,18 @@ export default function AdminApp() {
     );
   }
 
-  const seccionValida =
-    usuario!.rol === "admin" || !["bloqueados", "reportes", "gastos", "configuracion"].includes(seccion);
-  const seccionActual = seccionValida ? seccion : "panel";
-
   return (
     <div className="admin-shell">
-      <Sidebar seccion={seccionActual} onCambiar={setSeccion} />
-      <div className="panel fade-in" key={seccionActual}>
-        {seccionActual === "panel" && <PanelDashboard />}
-        {seccionActual === "inventario" && <Inventario />}
-        {seccionActual === "pedidos" && <Pedidos />}
-        {seccionActual === "historial" && <Historial />}
-        {seccionActual === "bloqueados" && <ClientesBloqueados />}
-        {seccionActual === "reportes" && <Reportes />}
-        {seccionActual === "gastos" && <Gastos />}
-        {seccionActual === "configuracion" && <Configuracion />}
+      <Sidebar seccion={seccion} onCambiar={setSeccion} />
+      <div className="panel fade-in" key={seccion}>
+        {seccion === "panel" && <PanelDashboard />}
+        {seccion === "inventario" && <Inventario />}
+        {seccion === "pedidos" && <Pedidos />}
+        {seccion === "historial" && <Historial />}
+        {seccion === "bloqueados" && <ClientesBloqueados />}
+        {seccion === "reportes" && <Reportes />}
+        {seccion === "gastos" && <Gastos />}
+        {seccion === "configuracion" && <Configuracion />}
       </div>
     </div>
   );

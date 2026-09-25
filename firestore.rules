@@ -7,33 +7,25 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function esStaff() {
+    function esAdmin() {
       return estaAutenticado() &&
         exists(/databases/$(database)/documents/usuarios/$(request.auth.uid));
     }
 
-    function rolDe(uid) {
-      return get(/databases/$(database)/documents/usuarios/$(uid)).data.rol;
-    }
-
-    function esAdmin() {
-      return esStaff() && rolDe(request.auth.uid) == 'admin';
-    }
-
     match /especies/{especieId} {
       allow read: if true;
-      allow write: if esStaff();
+      allow write: if esAdmin();
     }
 
     match /pedidos/{pedidoId} {
       allow create: if true;
-      allow read, update: if esStaff();
+      allow read, update: if esAdmin();
       allow delete: if false;
     }
 
     match /auditoria/{entradaId} {
-      allow read: if esStaff();
-      allow create: if esStaff();
+      allow read: if esAdmin();
+      allow create: if esAdmin();
       allow update, delete: if false;
     }
 
@@ -47,8 +39,7 @@ service cloud.firestore {
     }
 
     match /usuarios/{uid} {
-      allow read: if esStaff();
-      allow write: if esAdmin();
+      allow read, write: if esAdmin();
     }
 
     match /configuracion/{docId} {

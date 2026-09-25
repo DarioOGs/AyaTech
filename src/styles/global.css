@@ -1,24 +1,25 @@
 :root {
-  --bg: #f3f6f5;
+  --bg: #f6fbf8;
   --surface: #ffffff;
-  --surface-2: #eaf1ef;
-  --surface-3: #dceae7;
+  --surface-2: #eaf6f1;
+  --surface-3: #d8f0e6;
   --ink: #12262a;
   --ink-soft: #4e6469;
   --ink-faint: #7e9297;
   --water: #0b4f5c;
   --water-strong: #083c46;
   --water-mid: #17808e;
+  --water-bright: #23c2c9;
   --clay: #c1652e;
   --clay-strong: #9e4f22;
   --leaf: #3b8a4a;
-  --leaf-bg: #e3f3e4;
+  --leaf-bg: #e2f6e6;
   --amber: #b9791e;
-  --amber-bg: #f7ecd8;
+  --amber-bg: #fbf0d9;
   --danger: #b23b3b;
   --danger-bg: #f8e3e1;
-  --border: rgba(11, 79, 92, 0.16);
-  --border-strong: rgba(11, 79, 92, 0.28);
+  --border: rgba(11, 79, 92, 0.13);
+  --border-strong: rgba(11, 79, 92, 0.24);
   --shadow: 0 1px 2px rgba(11, 79, 92, 0.07), 0 10px 28px -14px rgba(11, 79, 92, 0.24);
   --btn-primary-bg: #0b4f5c;
   --btn-primary-fg: #ffffff;
@@ -37,6 +38,7 @@
     --water: #5fc7d6;
     --water-strong: #8fdce6;
     --water-mid: #3aa0af;
+    --water-bright: #4fd8db;
     --clay: #e28a4d;
     --clay-strong: #f0a468;
     --leaf: #6fc17e;
@@ -65,6 +67,7 @@
   --water: #5fc7d6;
   --water-strong: #8fdce6;
   --water-mid: #3aa0af;
+  --water-bright: #4fd8db;
   --clay: #e28a4d;
   --clay-strong: #f0a468;
   --leaf: #6fc17e;
@@ -94,6 +97,29 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  position: relative;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/logo.svg");
+  background-repeat: no-repeat;
+  background-position: center 8vh;
+  background-size: min(620px, 72vw);
+  opacity: 0.05;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::before {
+    opacity: 0.08;
+    filter: invert(1) hue-rotate(180deg);
+  }
+}
+:root[data-theme="dark"] body::before {
+  opacity: 0.08;
+  filter: invert(1) hue-rotate(180deg);
 }
 h1,
 h2,
@@ -379,7 +405,7 @@ a {
   border-radius: 20px;
   padding: 22px 18px 20px;
   margin-bottom: 16px;
-  background: linear-gradient(135deg, var(--water) 0%, var(--water-mid) 100%);
+  background: linear-gradient(135deg, var(--water) 0%, var(--water-mid) 55%, var(--water-bright) 100%);
   color: var(--btn-primary-fg);
 }
 .catalog-hero .pattern {
@@ -401,6 +427,8 @@ a {
   margin: 0;
   font-size: 0.82rem;
   opacity: 0.92;
+}
+.catalog-hero p .fecha {
   text-transform: capitalize;
 }
 
@@ -524,6 +552,21 @@ a {
   text-align: center;
   font-weight: 700;
   font-size: 1.05rem;
+}
+.stepper-input {
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  font-family: inherit;
+  padding: 0;
+}
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.stepper-input:focus {
+  outline: none;
 }
 .stepper button {
   width: 32px;
@@ -970,6 +1013,28 @@ tr:last-child td {
   font-size: 0.76rem;
   color: var(--ink-faint);
   margin-top: 2px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 22, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 .inline-form {

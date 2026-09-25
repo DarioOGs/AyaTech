@@ -18,7 +18,7 @@ export default function FormularioPedido({
   onVolver: () => void;
   onConfirmado: (folioId: string, pedido: Pedido) => void;
 }) {
-  const [kilos, setKilos] = useState(Math.min(5, especie.kilosDisponibles));
+  const [kilos, setKilos] = useState(5);
   const [domicilio, setDomicilio] = useState(false);
   const [direccion, setDireccion] = useState("");
   const [nombre, setNombre] = useState("");
@@ -34,14 +34,17 @@ export default function FormularioPedido({
   const total = subtotal + costoDomicilio;
 
   function cambiarKg(delta: number) {
-    setKilos((k) => {
-      const nuevo = Math.round((k + delta) * 10) / 10;
-      return Math.max(0.5, Math.min(especie.kilosDisponibles, nuevo));
-    });
+    setKilos((k) => Math.max(0.5, Math.round((k + delta) * 10) / 10));
+  }
+
+  function escribirKg(valor: string) {
+    const n = parseFloat(valor.replace(",", "."));
+    setKilos(Number.isFinite(n) && n > 0 ? n : 0);
   }
 
   async function confirmar() {
     setError("");
+    if (!kilos || kilos <= 0) return setError("Escribe cuántos kilos deseas.");
     if (!nombre.trim() || nombre.trim().length < 3) return setError("Escribe tu nombre completo.");
     if (!/^\d{6,10}$/.test(cedula.trim())) return setError("Escribe un número de cédula válido.");
     if (!telefono.trim()) return setError("Escribe un número de WhatsApp de contacto.");
@@ -83,6 +86,7 @@ export default function FormularioPedido({
         kilos: nuevoPedido.kilosSolicitados,
         domicilio: nuevoPedido.domicilio,
         total: nuevoPedido.valorTotal,
+        sinStock: kilos > especie.kilosDisponibles,
       });
       onConfirmado(ref.id, { id: ref.id, ...nuevoPedido });
     } catch (e) {
@@ -102,8 +106,7 @@ export default function FormularioPedido({
         <h2>Pedir {especie.nombre}</h2>
       </div>
       <p className="device-sub">
-        {especie.kilosDisponibles.toLocaleString("es-CO", { minimumFractionDigits: 1 })} kg
-        disponibles · <span className="num">{money(especie.precioPorKilo)}</span>/kg
+        <span className="num">{money(especie.precioPorKilo)}</span> por kilogramo
       </p>
 
       <div className="field">
@@ -112,13 +115,20 @@ export default function FormularioPedido({
           <button onClick={() => cambiarKg(-0.5)}>
             <Icon name="minus" size={15} />
           </button>
-          <span className="val num">
-            {kilos.toLocaleString("es-CO", { minimumFractionDigits: 1 })} kg
-          </span>
+          <input
+            className="val num stepper-input"
+            type="number"
+            inputMode="decimal"
+            min="0.5"
+            step="0.5"
+            value={kilos || ""}
+            onChange={(e) => escribirKg(e.target.value)}
+          />
           <button onClick={() => cambiarKg(0.5)}>
             <Icon name="plus" size={15} />
           </button>
         </div>
+        <div className="hint">Escribe la cantidad exacta si necesitas más de lo que ves aquí.</div>
       </div>
 
       <div className="toggle-row">

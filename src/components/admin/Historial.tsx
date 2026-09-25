@@ -1,77 +1,105 @@
-import { useState } from "react";
-import { useAuditoria } from "../../hooks/useAuditoria";
-import { tiempoRelativo } from "../../utils/format";
-import Icon, { type IconName } from "../Icon";
-import type { TipoAuditoria } from "../../types";
+import { useMemo, useState } from "react";
+import { usePedidos } from "../../hooks/usePedidos";
+import { fechaCorta, folioDe, kg, money } from "../../utils/format";
+import Icon from "../Icon";
 
-type Filtro = "todas" | "ventas" | "inventario" | "clientes";
-
-const GRUPOS: Record<Filtro, TipoAuditoria[] | null> = {
-  todas: null,
-  ventas: ["venta", "cancelacion"],
-  inventario: ["adicion_kg", "reduccion_kg", "nueva_especie", "especie_eliminada", "cambio_precio", "config"],
-  clientes: ["bloqueo", "desbloqueo"],
-};
-
-const ICONO_TIPO: Record<TipoAuditoria, { icon: IconName; clase: string }> = {
-  venta: { icon: "checkcircle", clase: "leaf" },
-  cancelacion: { icon: "xcircle", clase: "danger" },
-  adicion_kg: { icon: "plus", clase: "water" },
-  reduccion_kg: { icon: "minus", clase: "amber" },
-  nueva_especie: { icon: "box", clase: "water" },
-  especie_eliminada: { icon: "xcircle", clase: "danger" },
-  cambio_precio: { icon: "tag", clase: "amber" },
-  bloqueo: { icon: "ban", clase: "danger" },
-  desbloqueo: { icon: "check", clase: "leaf" },
-  config: { icon: "gear", clase: "water" },
-};
+function porFechaDesc<T extends { fechaActualizacion: { toMillis: () => number } | null }>(lista: T[]): T[] {
+  return [...lista].sort((a, b) => (b.fechaActualizacion?.toMillis() ?? 0) - (a.fechaActualizacion?.toMillis() ?? 0));
+}
 
 export default function Historial() {
-  const { entradas, cargando } = useAuditoria(150);
-  const [filtro, setFiltro] = useState<Filtro>("todas");
+  const { pedidos: confirmados, cargando } = usePedidos("confirmado");
+  const { pedidos: cancelados } = usePedidos("cancelado");
+  const [verCanceladas, setVerCanceladas] = useState(false);
 
-  const visibles = entradas.filter((e) => {
-    const grupo = GRUPOS[filtro];
-    return grupo === null || grupo.includes(e.tipo);
-  });
+  const ventas = useMemo(() => porFechaDesc(confirmados), [confirmados]);
+  const canceladas = useMemo(() => porFechaDesc(cancelados), [cancelados]);
+
+  const totalKilos = ventas.reduce((s, p) => s + p.kilosSolicitados, 0);
 
   return (
     <div>
-      <h2>Historial y auditoría</h2>
-      <div className="panel-sub">
-        Cada venta, cancelación o cambio de inventario queda registrado con fecha, hora y
-        responsable.
-      </div>
-
-      <div className="chip-row">
-        {(["todas", "ventas", "inventario", "clientes"] as Filtro[]).map((f) => (
-          <button key={f} className={"filter-chip" + (filtro === f ? " active" : "")} onClick={() => setFiltro(f)}>
-            {f === "todas" ? "Todas" : f === "ventas" ? "Ventas" : f === "inventario" ? "Inventario" : "Clientes"}
-          </button>
-        ))}
+      <div className="panel-head">
+        <div>
+          <h2>Historial de ventas</h2>
+          <div className="panel-sub">
+            Pedidos confirmados, listos para saber cuánto despachar. Total pendiente por entregar:{" "}
+            <strong className="num">{kg(totalKilos)}</strong>.
+          </div>
+        </div>
+        <button className="btn btn-outline btn-sm" onClick={() => setVerCanceladas(true)}>
+          <Icon name="xcircle" size={14} />
+          Ver canceladas ({canceladas.length})
+        </button>
       </div>
 
       {cargando && <p className="caption-note">Cargando historial...</p>}
-      {!cargando && visibles.length === 0 && <p className="caption-note">Todavía no hay movimientos en esta categoría.</p>}
+      {!cargando && ventas.length === 0 && <p className="caption-note">Todavía no hay ventas confirmadas.</p>}
 
-      <div className="log-list">
-        {visibles.map((e) => {
-          const cfg = ICONO_TIPO[e.tipo] ?? { icon: "check" as IconName, clase: "water" };
-          return (
-            <div className="log-item" key={e.id}>
-              <div className={"log-ic " + cfg.clase}>
-                <Icon name={cfg.icon} size={16} />
-              </div>
-              <div className="log-body">
-                <div className="log-title">{e.descripcion}</div>
-                <div className="log-meta">
-                  {e.usuarioNombre} · {tiempoRelativo(e.fecha)}
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Folio</th>
+              <th>Cliente</th>
+              <th>Pedido</th>
+              <th>Entrega</th>
+              <th>Total</th>
+              <th>Confirmado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ventas.map((p) => (
+              <tr key={p.id}>
+                <td>{folioDe(p.id)}</td>
+                <td>
+                  {p.clienteNombre}
+                  <br />
+                  <span className="caption-note">C.C. {p.clienteCedula}</span>
+                </td>
+                <td className="num">
+                  {p.especieNombre}, {kg(p.kilosSolicitados)}
+                </td>
+                <td>{p.domicilio ? "Domicilio" : "Recoge en finca"}</td>
+                <td className="num">{money(p.valorTotal)}</td>
+                <td>{fechaCorta(p.fechaActualizacion)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
+
+      {verCanceladas && (
+        <div className="modal-overlay" onClick={() => setVerCanceladas(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="panel-head">
+              <h3 style={{ margin: 0 }}>Ventas canceladas</h3>
+              <button className="icon-btn" onClick={() => setVerCanceladas(false)}>
+                <Icon name="xcircle" size={16} />
+              </button>
+            </div>
+            {canceladas.length === 0 && <p className="caption-note">No hay pedidos cancelados.</p>}
+            <div className="log-list">
+              {canceladas.map((p) => (
+                <div className="log-item" key={p.id}>
+                  <div className="log-ic danger">
+                    <Icon name="xcircle" size={16} />
+                  </div>
+                  <div className="log-body">
+                    <div className="log-title">
+                      {folioDe(p.id)} — {p.clienteNombre} — {p.especieNombre}, {kg(p.kilosSolicitados)}
+                    </div>
+                    <div className="log-meta">
+                      {p.motivoCancelacion ? `Motivo: ${p.motivoCancelacion}` : "Sin motivo registrado"} ·{" "}
+                      {fechaCorta(p.fechaActualizacion)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
