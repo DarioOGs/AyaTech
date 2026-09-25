@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTema } from "../hooks/useTema";
 import Icon from "./Icon";
 
 type Vista = "cliente" | "admin";
@@ -11,6 +12,7 @@ export default function TopBar({
   onCambiarVista: (v: Vista) => void;
 }) {
   const [online, setOnline] = useState(navigator.onLine);
+  const { tema, alternar } = useTema();
 
   useEffect(() => {
     const on = () => setOnline(true);
@@ -39,6 +41,15 @@ export default function TopBar({
           <span className="dot" />
           {online ? "En línea · sincronizado" : "Sin conexión · guardando local"}
         </span>
+
+        <button
+          className="icon-btn"
+          onClick={alternar}
+          title={tema === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+          aria-label={tema === "dark" ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+        >
+          <Icon name={tema === "dark" ? "sun" : "moon"} size={16} />
+        </button>
 
         {vista === "cliente" ? (
           <button className="staff-link" onClick={() => onCambiarVista("admin")}>

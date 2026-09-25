@@ -18,7 +18,9 @@ export type IconName =
   | "download"
   | "lock"
   | "tag"
-  | "gear";
+  | "gear"
+  | "sun"
+  | "moon";
 
 const viewBoxes: Partial<Record<IconName, string>> = { fish: "0 0 44 20" };
 
@@ -148,6 +150,15 @@ function paths(name: IconName) {
           <circle cx="13" cy="18" r="2" />
         </>
       );
+    case "sun":
+      return (
+        <>
+          <circle cx="12" cy="12" r="4.5" />
+          <path d="M12 2.5v3M12 18.5v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2.5 12h3M18.5 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+        </>
+      );
+    case "moon":
+      return <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4 6.8 6.8 0 0 0 20 14.5z" />;
   }
 }
 
