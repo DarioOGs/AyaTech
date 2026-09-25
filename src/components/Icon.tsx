@@ -13,8 +13,6 @@ export type IconName =
   | "check"
   | "checkcircle"
   | "xcircle"
-  | "send"
-  | "copy"
   | "download"
   | "lock"
   | "tag"
@@ -107,15 +105,6 @@ function paths(name: IconName) {
         <>
           <circle cx="12" cy="12" r="9" />
           <path d="M9 9l6 6M15 9l-6 6" />
-        </>
-      );
-    case "send":
-      return <path d="M4 12l16-8-6 16-3-6-7-2z" />;
-    case "copy":
-      return (
-        <>
-          <rect x="9" y="9" width="12" height="12" rx="2" />
-          <path d="M5 15V5a2 2 0 0 1 2-2h10" />
         </>
       );
     case "download":

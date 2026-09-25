@@ -5,18 +5,10 @@ import { haceNDias, inicioDelDia, inicioDelMes, inicioDeSemana } from "../../uti
 import { kg, money } from "../../utils/format";
 import { colorDeEspecie } from "../../utils/colors";
 import { descargarReportePdf } from "../../utils/pdf";
-import { linkReporteWhatsApp, textoReporte } from "../../utils/whatsapp";
 import EspecieThumb from "../EspecieThumb";
 import Icon from "../Icon";
 
 type Rango = "hoy" | "semana" | "mes" | "todo";
-
-const ETIQUETAS: Record<Rango, string> = {
-  hoy: "de hoy",
-  semana: "de esta semana",
-  mes: "de este mes",
-  todo: "general",
-};
 
 const TITULOS: Record<Rango, string> = {
   hoy: "Hoy",
@@ -29,7 +21,6 @@ export default function Reportes() {
   const { ventas } = useVentas();
   const { usuario } = useAuth();
   const [rango, setRango] = useState<Rango>("semana");
-  const [copiado, setCopiado] = useState(false);
 
   const desde = useMemo(() => {
     if (rango === "hoy") return inicioDelDia();
@@ -54,15 +45,6 @@ export default function Reportes() {
     return Array.from(mapa.entries());
   }, [ventasFiltradas]);
 
-  const datosReporte = { periodo: ETIQUETAS[rango], ventas: totalVentas, kilos: totalKilos };
-
-  function copiarReporte() {
-    navigator.clipboard.writeText(textoReporte(datosReporte)).then(() => {
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2200);
-    });
-  }
-
   function descargarPdf() {
     descargarReportePdf({
       periodoTitulo: TITULOS[rango],
@@ -76,7 +58,7 @@ export default function Reportes() {
   return (
     <div>
       <h2>Reportes</h2>
-      <div className="panel-sub">Cuánto se vendió por especie y en total, listo para revisar o enviar por WhatsApp.</div>
+      <div className="panel-sub">Cuánto se vendió por especie y en total, listo para descargar en PDF.</div>
 
       <div className="chip-row">
         {(["hoy", "semana", "mes", "todo"] as Rango[]).map((r) => (
@@ -140,30 +122,6 @@ export default function Reportes() {
             <Icon name="download" size={16} />
             Descargar PDF
           </button>
-
-          <h3 style={{ marginTop: 18 }}>Enviar reporte</h3>
-          <p>
-            Un toque abre WhatsApp con el mensaje ya escrito — tú eliges a quién enviárselo y
-            presionas enviar allá dentro. Es gratis, sin contratar ninguna API.
-          </p>
-          <a
-            className="btn btn-outline"
-            href={linkReporteWhatsApp(datosReporte)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Icon name="send" size={16} />
-            Abrir mensaje de WhatsApp
-          </a>
-          <button className="btn btn-outline" onClick={copiarReporte}>
-            <Icon name={copiado ? "check" : "copy"} size={16} />
-            {copiado ? "Reporte copiado" : "Copiar texto para correo"}
-          </button>
-          <p className="caption-note">
-            El botón de WhatsApp y "Copiar texto" solo comparten las cifras en texto (WhatsApp no
-            permite adjuntar archivos desde un enlace); si quieres mandar el PDF, descárgalo
-            arriba y adjúntalo tú mismo en el chat o el correo.
-          </p>
         </div>
       </div>
     </div>

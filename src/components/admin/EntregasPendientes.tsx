@@ -16,6 +16,7 @@ export default function EntregasPendientes() {
   const { usuario } = useAuth();
   const [verCanceladas, setVerCanceladas] = useState(false);
   const [procesando, setProcesando] = useState<string | null>(null);
+  const [errores, setErrores] = useState<Record<string, string>>({});
 
   const pendientes = useMemo(() => porFechaDesc(confirmados), [confirmados]);
   const canceladasOrdenadas = useMemo(() => porFechaDesc(cancelados), [cancelados]);
@@ -29,6 +30,7 @@ export default function EntregasPendientes() {
     if (!confirmado) return;
 
     setProcesando(pedidoId);
+    setErrores((e) => ({ ...e, [pedidoId]: "" }));
     try {
       await deleteDoc(doc(db, "pedidos", pedidoId));
       await addDoc(collection(db, "auditoria"), {
@@ -37,6 +39,8 @@ export default function EntregasPendientes() {
         usuarioNombre: usuario?.nombre ?? "Personal",
         fecha: serverTimestamp(),
       });
+    } catch (err) {
+      setErrores((e) => ({ ...e, [pedidoId]: (err as Error).message }));
     } finally {
       setProcesando(null);
     }
@@ -96,8 +100,9 @@ export default function EntregasPendientes() {
                     disabled={procesando === p.id}
                     onClick={() => marcarEntregado(p.id, p.especieNombre, p.kilosSolicitados)}
                   >
-                    Marcar entregado
+                    Entregado
                   </button>
+                  {errores[p.id] && <div className="field error">{errores[p.id]}</div>}
                 </td>
               </tr>
             ))}
