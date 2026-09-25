@@ -26,7 +26,7 @@ export default function Confirmacion({
       <div className="confirm-note">
         {pedido.domicilio
           ? "Tu pedido llegará a domicilio. Ten el pago listo cuando llegue el encargado."
-          : "Preséntate en la finca con tu cédula para recoger y pagar tu pedido."}
+          : "Preséntate en la finca para recoger y pagar tu pedido."}
       </div>
 
       <div className="confirm-note" style={{ background: "var(--leaf-bg)", borderColor: "transparent", color: "var(--leaf)" }}>

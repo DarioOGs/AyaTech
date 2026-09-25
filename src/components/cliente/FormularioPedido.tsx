@@ -128,13 +128,12 @@ export default function FormularioPedido({
             <Icon name="plus" size={15} />
           </button>
         </div>
-        <div className="hint">Escribe la cantidad exacta si necesitas más de lo que ves aquí.</div>
       </div>
 
       <div className="toggle-row">
         <div>
           <div style={{ fontWeight: 600, fontSize: ".87rem" }}>¿Domicilio?</div>
-          <div className="hint">Costo: {money(configuracion.costoDomicilio)} dentro de Ayapel (casco urbano)</div>
+          <div className="hint">Costo: {money(configuracion.costoDomicilio)} dentro de Ayapel</div>
         </div>
         <label className="switch">
           <input type="checkbox" checked={domicilio} onChange={(e) => setDomicilio(e.target.checked)} />
@@ -183,7 +182,7 @@ export default function FormularioPedido({
         <input type="tel" placeholder="Ej: 300 000 0000" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
       </div>
       <div className="field">
-        <label>Correo electrónico (opcional)</label>
+        <label>Correo electrónico</label>
         <input
           type="email"
           placeholder="Para avisarte si confirman o cancelan tu pedido"
