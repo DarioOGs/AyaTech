@@ -141,7 +141,6 @@ export default function Inventario() {
       <div className="panel-head">
         <div>
           <h2>Inventario</h2>
-          <div className="panel-sub">Ajusta los kilos disponibles apenas termine cada pesca o cada venta.</div>
         </div>
         <button className="btn btn-outline btn-sm" onClick={() => setMostrarForm((v) => !v)}>
           + Nueva especie
@@ -289,11 +288,6 @@ export default function Inventario() {
           </tbody>
         </table>
       </div>
-      <p className="caption-note">
-        Cada ajuste queda anotado en Panel → Actividad reciente, con la hora y quién lo hizo —
-        nada se ajusta en silencio. Ocultar una especie no borra sus kilos ni su precio, solo la
-        quita del catálogo mientras la vuelves a activar.
-      </p>
     </div>
   );
 }

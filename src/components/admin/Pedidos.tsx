@@ -18,6 +18,10 @@ export default function Pedidos() {
     setProcesados((prev) => new Set(prev).add(pedidoId));
   }
 
+  function yaNoEstaPendiente(mensaje: string) {
+    return mensaje === "El pedido ya no existe." || mensaje.startsWith("Este pedido ya fue procesado");
+  }
+
   async function confirmar(pedido: Pedido) {
     setProcesando(pedido.id);
     setErrores((e) => ({ ...e, [pedido.id]: "" }));
@@ -68,7 +72,9 @@ export default function Pedidos() {
         total: pedido.valorTotal,
       });
     } catch (err) {
-      setErrores((e) => ({ ...e, [pedido.id]: (err as Error).message }));
+      const mensaje = (err as Error).message;
+      setErrores((e) => ({ ...e, [pedido.id]: mensaje }));
+      if (yaNoEstaPendiente(mensaje)) marcarResuelto(pedido.id);
     } finally {
       setProcesando(null);
     }
@@ -108,7 +114,9 @@ export default function Pedidos() {
         total: pedido.valorTotal,
       });
     } catch (err) {
-      setErrores((e) => ({ ...e, [pedido.id]: (err as Error).message }));
+      const mensaje = (err as Error).message;
+      setErrores((e) => ({ ...e, [pedido.id]: mensaje }));
+      if (yaNoEstaPendiente(mensaje)) marcarResuelto(pedido.id);
     } finally {
       setProcesando(null);
     }

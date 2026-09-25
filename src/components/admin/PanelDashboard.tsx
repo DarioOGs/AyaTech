@@ -156,9 +156,7 @@ export default function PanelDashboard() {
               </div>
               <div className="log-body">
                 <div className="log-title">{e.descripcion}</div>
-                <div className="log-meta">
-                  {e.usuarioNombre} · {tiempoRelativo(e.fecha)}
-                </div>
+                <div className="log-meta">{tiempoRelativo(e.fecha)}</div>
               </div>
             </div>
           );
