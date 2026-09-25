@@ -17,8 +17,12 @@ export default function EntregasPendientes() {
   const [verCanceladas, setVerCanceladas] = useState(false);
   const [procesando, setProcesando] = useState<string | null>(null);
   const [errores, setErrores] = useState<Record<string, string>>({});
+  const [entregados, setEntregados] = useState<Set<string>>(new Set());
 
-  const pendientes = useMemo(() => porFechaDesc(confirmados), [confirmados]);
+  const pendientes = useMemo(
+    () => porFechaDesc(confirmados).filter((p) => !entregados.has(p.id)),
+    [confirmados, entregados]
+  );
   const canceladasOrdenadas = useMemo(() => porFechaDesc(cancelados), [cancelados]);
 
   const totalKilos = pendientes.reduce((s, p) => s + p.kilosSolicitados, 0);
@@ -33,6 +37,7 @@ export default function EntregasPendientes() {
     setErrores((e) => ({ ...e, [pedidoId]: "" }));
     try {
       await deleteDoc(doc(db, "pedidos", pedidoId));
+      setEntregados((prev) => new Set(prev).add(pedidoId));
       await addDoc(collection(db, "auditoria"), {
         tipo: "entrega",
         descripcion: `Pedido entregado — ${especieNombre}, ${kg(kilos)}`,
