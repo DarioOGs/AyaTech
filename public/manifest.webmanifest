@@ -4,8 +4,8 @@
   "description": "Consulta de disponibilidad, pedidos y gestión de ventas de alevinos.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F3F6F5",
-  "theme_color": "#0B4F5C",
+  "background_color": "#F6FBF8",
+  "theme_color": "#145C34",
   "icons": [
     {
       "src": "/icons/icon.svg",
